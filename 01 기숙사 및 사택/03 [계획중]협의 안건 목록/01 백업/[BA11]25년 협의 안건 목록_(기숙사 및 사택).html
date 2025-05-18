@@ -1,0 +1,3256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>협의 내용 작성 시트</title>
+  <style>
+    html, body {
+      font-size: 18px;
+      font-family: '맑은 고딕', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body.fullscreen-mode #controls {
+      display: none;
+    }
+    h2 {
+      margin: 10px 20px;
+      cursor: text;
+      font-size: 24px;
+      padding-left: 0;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 10px;
+      background: #eef8ff;
+      font-size: 14px;
+    }
+    .group {
+      position: relative;
+      background: #eaf4ff;
+      padding: 4px;
+      border-radius: 6px;
+      margin-right: 6px;
+      min-width: 80px;
+      max-width: fit-content;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      height: 45px;
+      justify-content: space-between;
+    }
+    .group-title {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 2px;
+      color: #2c5282;
+      white-space: nowrap;
+    }
+    .group button {
+      padding: 2px 6px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #999;
+      background: #f2f2f2;
+      border-radius: 4px;
+      margin: 1px;
+      white-space: nowrap;
+      height: 20px;
+      line-height: 1;
+    }
+    .group .tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      display: none;
+      z-index: 1000;
+      white-space: nowrap;
+      pointer-events: none;
+      margin-top: 4px;
+      bottom: -25px;
+    }
+    .group:nth-child(1) { background: #fff2e6; } /* 파일 - 연한 주황색 */
+    .group:nth-child(2) { background: #e6f3ff; } /* 전체화면 - 연한 파란색 */
+    .group:nth-child(3) { background: #e6ffff; } /* 스타일 - 청록색 */
+    .group:nth-child(4) { background: #f0e6ff; } /* 하이퍼링크 - 연한 보라색 */
+    .group:nth-child(5) { background: #fff0f5; } /* 숫자 입력 - 연한 분홍색 */
+    .group:nth-child(6) { background: #e6ffe6; } /* 합계 행 - 연한 초록색 */
+    .group:nth-child(7) { background: #ffe6e6; } /* 행/열 조작 - 연한 빨간색 */
+    .group:nth-child(8) { background: #e6e6ff; } /* 열 폭 조정 - 연한 파란색 */
+    .group:nth-child(9) { background: #fff8e6; } /* 병합 - 연한 노란색 */
+    .group:nth-child(10) { background: #f0f0f0; } /* 정렬 - 연한 회색 */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: auto;
+      font-size: 18px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 3px;
+      text-align: center;
+      vertical-align: middle;
+      resize: both;
+      overflow: hidden;
+      white-space: pre-wrap;
+      min-height: 24px;
+      height: 100%;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    th[contenteditable="true"], td[contenteditable="true"] {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: text;
+      caret-color: transparent;
+    }
+    th[contenteditable="true"]:focus, td[contenteditable="true"]:focus {
+      outline: 2px solid #4a90e2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      caret-color: transparent;
+    }
+    th[contenteditable="true"]:focus::after, td[contenteditable="true"]:focus::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 1.2em;
+      background-color: #000;
+    }
+    th > *, td > * {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    th {
+      background: #dceeff;
+      font-weight: bold;
+    }
+    th:first-child, td:first-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+    td[contenteditable], th[contenteditable] {
+      cursor: text;
+    }
+    .selected {
+      outline: 2px solid #4a90e2;
+    }
+    .fullscreen-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      z-index: 9999;
+      padding: 20px;
+      overflow: auto;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .fullscreen-mode h2 {
+      margin: 10px 20px;
+      padding-left: 0;
+    }
+    .fullscreen-mode .controls {
+      background: #eef8ff;
+    }
+    .fullscreen-mode #editableTable {
+      max-width: calc(100% - 40px);
+      margin: 0 auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-x: auto;
+      display: table;
+      table-layout: fixed;
+      width: 100%;
+    }
+    .fullscreen-mode #editableTable thead {
+      background: #fff;
+    }
+    .fullscreen-mode #editableTable thead th {
+      background: #dceeff;
+    }
+    .fullscreen-mode #editableTable tbody {
+      display: table-row-group;
+    }
+    .fullscreen-mode #editableTable tr {
+      display: table-row;
+    }
+    .fullscreen-mode #editableTable td,
+    .fullscreen-mode #editableTable th {
+      display: table-cell;
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    #editableTable {
+      margin: 0 auto;
+      max-width: calc(100% - 40px);
+    }
+    #editableTable tbody {
+      display: table-row-group;
+    }
+    #editableTable tr {
+      display: table-row;
+    }
+    #editableTable td, #editableTable th {
+      display: table-cell;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      height: 100%;
+    }
+    .style-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .style-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .style-panel .title::before {
+      content: "🎨";
+      margin-right: 8px;
+    }
+    .style-panel .section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .style-panel .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .style-panel .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .style-panel .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .style-panel button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .style-panel button.mode {
+      background: #4a90e2;
+      color: white;
+    }
+    .style-panel button.cancel {
+      background: #dc3545;
+      color: white;
+    }
+    .style-panel button.apply {
+      background: #28a745;
+      color: white;
+    }
+    .style-panel button.close {
+      background: #6c757d;
+      color: white;
+    }
+    .style-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .style-panel .info-content {
+      font-size: 13px;
+      color: #495057;
+      line-height: 1.5;
+    }
+    .style-panel .info-content p {
+      margin: 5px 0;
+    }
+    .style-panel .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+    }
+    .style-panel .status span {
+      font-weight: bold;
+      color: #2c5282;
+    }
+    .style-panel .preset-sizes {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .style-panel .preset-sizes button {
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .style-panel .preset-sizes button:hover {
+      background: #dee2e6;
+    }
+    .style-panel .preset-colors {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .style-panel .preset-colors button {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    tbody tr:nth-child(even) {
+      background-color: rgba(220, 220, 220, 0.2);
+    }
+    .tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+      white-space: nowrap;
+      pointer-events: none;
+      margin-top: 5px;
+    }
+    .group:hover .tooltip {
+      display: block;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .align-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .align-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .align-panel .title::before {
+      content: "↔️";
+      margin-right: 8px;
+    }
+    .align-panel .section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .align-panel .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .align-panel .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .align-panel .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .align-panel .align-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .align-panel button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .align-panel button.mode {
+      background: #4a90e2;
+      color: white;
+    }
+    .align-panel button.cancel {
+      background: #dc3545;
+      color: white;
+    }
+    .align-panel button.close {
+      background: #6c757d;
+      color: white;
+    }
+    .align-panel .align-buttons button {
+      justify-content: flex-start;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      color: #495057;
+    }
+    .align-panel .align-buttons button:hover {
+      background: #e9ecef;
+    }
+    .align-panel .align-buttons button .icon {
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    .align-panel .align-buttons button .text {
+      font-size: 13px;
+    }
+    .align-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .align-panel .info-content {
+      font-size: 13px;
+      color: #495057;
+      line-height: 1.5;
+    }
+    .align-panel .info-content p {
+      margin: 5px 0;
+    }
+    .align-panel .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+    }
+    .align-panel .status span {
+      font-weight: bold;
+      color: #2c5282;
+    }
+    .edit-mode-button {
+      position: fixed;
+      top: 5px;
+      left: 10px;
+      padding: 4px 8px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10px;
+      z-index: 10000;
+      display: none;
+      transform: scale(0.85);
+    }
+    .fullscreen-mode .edit-mode-button {
+      display: block;
+    }
+    .mode-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 10001;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .number-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 250px;
+    }
+    .number-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .number-panel .title::before {
+      content: "🔢";
+      margin-right: 8px;
+    }
+    .number-panel .number-group {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .number-panel .number-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .number-panel label {
+      font-size: 13px;
+      color: #495057;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .number-panel select, .number-panel input {
+      width: 100%;
+      padding: 4px 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .number-panel .preset-buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .number-panel .preset-buttons button {
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .number-panel .preset-buttons button:hover {
+      background: #dee2e6;
+    }
+    .number-panel .unit-group {
+      display: flex;
+      gap: 10px;
+    }
+    .number-panel .unit-group input {
+      flex: 1;
+    }
+    .number-panel .multi-input {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      display: none;
+    }
+    .number-panel .multi-input.active {
+      display: block;
+    }
+    .number-panel .cell-input {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 5px;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    .number-panel .cell-input label {
+      margin: 0;
+      margin-right: 10px;
+      min-width: 60px;
+    }
+    .number-panel .cell-input input {
+      flex: 1;
+      margin: 0;
+    }
+    .number-panel .quick-input {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .number-panel .quick-input button {
+      flex: 1;
+      padding: 5px;
+      font-size: 12px;
+    }
+    .number-panel button {
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #ced4da;
+      background: #e9ecef;
+      border-radius: 4px;
+      margin: 2px;
+      transition: all 0.2s ease;
+    }
+    .number-panel button:hover {
+      background: #dee2e6;
+    }
+    .number-panel .number-group:last-child button {
+      padding: 5px 15px;
+      font-size: 14px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .number-panel .number-group:last-child button:last-child {
+      background: #6c757d;
+    }
+    .number-panel .number-group:last-child button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .sum-button-group {
+      position: relative;
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .sum-button-group .tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+      white-space: nowrap;
+      pointer-events: none;
+      margin-top: 5px;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .sum-button-group:hover .tooltip {
+      display: block;
+    }
+    .hyperlink-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .hyperlink-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .hyperlink-panel .title::before {
+      content: "🔗";
+      margin-right: 8px;
+    }
+    .hyperlink-panel .hyperlink-group {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .hyperlink-panel .hyperlink-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    .hyperlink-panel .hyperlink-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    .hyperlink-panel .hyperlink-item input {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .hyperlink-panel .hyperlink-item .remove-btn {
+      padding: 6px 10px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .hyperlink-panel .add-btn {
+      width: 100%;
+      padding: 8px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    .hyperlink-panel .current-links {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    .hyperlink-panel .current-links h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #495057;
+    }
+    .hyperlink-panel .current-links ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .hyperlink-panel .current-links li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      font-size: 13px;
+      color: #495057;
+    }
+    .hyperlink-panel .current-links .link-count {
+      color: #6c757d;
+      font-size: 12px;
+    }
+    .hyperlink-panel button {
+      padding: 8px 15px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .hyperlink-panel button.apply {
+      background: #4a90e2;
+      color: white;
+    }
+    .hyperlink-panel button.cancel {
+      background: #6c757d;
+      color: white;
+    }
+    .hyperlink-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .table-manipulation-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .table-manipulation-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .table-manipulation-panel .title::before {
+      content: "📊";
+      margin-right: 8px;
+    }
+    .table-manipulation-panel .section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .table-manipulation-panel .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .table-manipulation-panel .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .table-manipulation-panel .section-title::before {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+    .table-manipulation-panel .section.rows .section-title::before {
+      content: "↕️";
+    }
+    .table-manipulation-panel .section.columns .section-title::before {
+      content: "↔️";
+    }
+    .table-manipulation-panel .section.headers .section-title::before {
+      content: "📑";
+    }
+    .table-manipulation-panel .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .table-manipulation-panel button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .table-manipulation-panel button.add {
+      background: #28a745;
+      color: white;
+    }
+    .table-manipulation-panel button.remove {
+      background: #dc3545;
+      color: white;
+    }
+    .table-manipulation-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .table-manipulation-panel .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+    }
+    .table-manipulation-panel .status span {
+      font-weight: bold;
+      color: #2c5282;
+    }
+    .sum-row-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .sum-row-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sum-row-panel .title::before {
+      content: "🧮";
+      margin-right: 8px;
+    }
+    .sum-row-panel .section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .sum-row-panel .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .sum-row-panel .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .sum-row-panel .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .sum-row-panel button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .sum-row-panel button.add {
+      background: #28a745;
+      color: white;
+    }
+    .sum-row-panel button.remove {
+      background: #dc3545;
+      color: white;
+    }
+    .sum-row-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .sum-row-panel .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+    }
+    .sum-row-panel .status span {
+      font-weight: bold;
+      color: #2c5282;
+    }
+    .sum-row-panel .sum-row-list {
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .sum-row-panel .sum-row-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      margin-bottom: 5px;
+    }
+    .sum-row-panel .sum-row-item:last-child {
+      margin-bottom: 0;
+    }
+    .sum-row-panel .sum-row-info {
+      font-size: 13px;
+      color: #495057;
+    }
+    .sum-row-panel .sum-row-remove {
+      padding: 4px 8px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .merge-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 300px;
+    }
+    .merge-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .merge-panel .title::before {
+      content: "🔗";
+      margin-right: 8px;
+    }
+    .merge-panel .section {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .merge-panel .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .merge-panel .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #495057;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .merge-panel .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .merge-panel button {
+      padding: 8px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .merge-panel button.mode {
+      background: #4a90e2;
+      color: white;
+    }
+    .merge-panel button.merge {
+      background: #28a745;
+      color: white;
+    }
+    .merge-panel button.undo {
+      background: #ffc107;
+      color: #000;
+    }
+    .merge-panel button.cancel {
+      background: #dc3545;
+      color: white;
+    }
+    .merge-panel button.close {
+      background: #6c757d;
+      color: white;
+    }
+    .merge-panel button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .merge-panel .info-content {
+      font-size: 13px;
+      color: #495057;
+      line-height: 1.5;
+    }
+    .merge-panel .info-content p {
+      margin: 5px 0;
+    }
+    .merge-panel .status {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #495057;
+    }
+    .merge-panel .status span {
+      font-weight: bold;
+      color: #2c5282;
+    }
+
+    @media print {
+      .controls,
+      .group,
+      .group-title,
+      .group button,
+      .group .tooltip,
+      .style-panel,
+      .align-panel,
+      .number-panel,
+      .hyperlink-panel,
+      .table-manipulation-panel,
+      .sum-row-panel,
+      .merge-panel,
+      .edit-mode-button,
+      .mode-message {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+      }
+
+      #editableTable {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: auto;
+      }
+
+      #editableTable th:first-child,
+      #editableTable td:first-child {
+        width: auto;
+        min-width: auto;
+        white-space: nowrap;
+      }
+
+      #editableTable th,
+      #editableTable td {
+        border: 1px solid #aaa;
+        padding: 3px;
+        text-align: center;
+        vertical-align: middle;
+        min-height: 24px;
+        height: 100%;
+        line-height: 1.2;
+        white-space: pre-wrap;
+        overflow: hidden;
+        background-color: inherit !important;
+        color: inherit !important;
+      }
+
+      #editableTable th {
+        background-color: #dceeff !important;
+        font-weight: bold;
+      }
+
+      #editableTable tbody tr:nth-child(even) {
+        background-color: rgba(220, 220, 220, 0.2) !important;
+      }
+
+      #editableTable td[style*="background-color: #DAF2D0"] {
+        background-color: #DAF2D0 !important;
+      }
+
+      #editableTable td[style*="font-weight: bold"] {
+        font-weight: bold !important;
+      }
+
+      #editableTable td[style*="text-align: right"] {
+        text-align: right !important;
+      }
+
+      #editableTable td[style*="text-align: left"] {
+        text-align: left !important;
+      }
+
+      #editableTable td[style*="text-align: center"] {
+        text-align: center !important;
+      }
+
+      #editableTable td[style*="font-size"] {
+        font-size: inherit !important;
+      }
+
+      #editableTable td[style*="color"] {
+        color: inherit !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="controls" class="controls">
+  <div class="group">
+    <div class="group-title">파일</div>
+    <button onclick="downloadHTML()">다운로드</button>
+    <div class="tooltip">HTML 파일을 다운로드할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">전체화면</div>
+    <button onclick="toggleFullscreen()">전체화면</button>
+    <div class="tooltip">전체화면 모드를 전환할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">스타일</div>
+    <button onclick="toggleStyleMode()">스타일 모드</button>
+    <div class="tooltip">셀을 선택하여 글자 크기, 굵기, 색상을 한 번에 적용할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">하이퍼링크</div>
+    <button onclick="toggleHyperlinkMode()">하이퍼링크</button>
+    <div class="tooltip">하이퍼링크를 설정할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">숫자 입력</div>
+    <button onclick="toggleNumberMode()">숫자 입력 모드</button>
+    <div class="tooltip">셀을 선택하여 숫자 형식과 단위를 설정할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">합계 행</div>
+    <div class="sum-button-group">
+      <button onclick="addSumRow()">합계 행 추가</button>
+      <button onclick="removeSumRows()">합계 행 제거</button>
+      <div class="tooltip">합계 행을 추가하거나 제거할 수 있습니다.</div>
+    </div>
+  </div>
+  <div class="group">
+    <div class="group-title">행/열 조작</div>
+    <button onclick="toggleTableManipulation()">행/열 조작</button>
+    <div class="tooltip">테이블의 행과 열을 추가하거나 삭제할 수 있습니다.</div>
+  </div>
+  <div class="group" style="min-width: 200px;">
+    <div class="group-title">열 폭 조정</div>
+    <div style="display: flex; gap: 4px; justify-content: center;">
+      <button onclick="autoAdjustColumnWidths()">열 폭 자동 조정</button>
+      <button onclick="resetColumnWidths()">열 폭 초기화</button>
+    </div>
+    <div class="tooltip">테이블의 열 폭을 내용에 맞게 자동으로 조정합니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">병합</div>
+    <button onclick="toggleMergeMode()">병합 모드</button>
+    <div class="tooltip">셀을 선택하여 병합하거나 병합을 취소할 수 있습니다. (되돌리기 최대 10회 가능)</div>
+  </div>
+  <div class="group">
+    <div class="group-title">정렬</div>
+    <button onclick="toggleAlignMode()">정렬 모드</button>
+    <div class="tooltip">셀을 선택하여 정렬 방식을 적용할 수 있습니다.</div>
+  </div>
+</div>
+
+<h2 contenteditable="true">협의 안건 목록</h2>
+
+<table id="editableTable">
+  <thead>
+    <tr>
+      <th>NO.</th>
+      <th contenteditable="true">항목</th>
+      <th contenteditable="true">연관성</th>
+      <th contenteditable="true">예산</th>
+      <th contenteditable="true">계획</th>
+      <th contenteditable="true">비용(예상)</th>
+      <th contenteditable="true">진행</th>
+      <th contenteditable="true">이월</th>
+      <th contenteditable="true">비고</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div class="style-panel" id="stylePanel">
+  <div class="title">스타일 설정</div>
+  <div class="section style-mode">
+    <div class="section-title">스타일 모드</div>
+    <div class="button-group">
+      <button class="mode" onclick="toggleStyleMode()">스타일 모드 활성화</button>
+      <button class="cancel" onclick="cancelStyleMode()">스타일 모드 취소</button>
+    </div>
+  </div>
+  <div class="section style-actions">
+    <div class="section-title">글자 크기</div>
+    <div class="style-group">
+      <input type="number" id="fontSize" min="10" max="40" value="18"> px
+      <div class="preset-sizes">
+        <button onclick="setFontSize(14)">작게</button>
+        <button onclick="setFontSize(18)">보통</button>
+        <button onclick="setFontSize(24)">크게</button>
+        <button onclick="setFontSize(32)">매우 크게</button>
+      </div>
+    </div>
+  </div>
+  <div class="section style-actions">
+    <div class="section-title">글자 굵기</div>
+    <div class="style-group">
+      <input type="checkbox" id="fontBold"> 굵게
+    </div>
+  </div>
+  <div class="section style-actions">
+    <div class="section-title">글자 색상</div>
+    <div class="style-group">
+      <input type="color" id="fontColor">
+      <div class="preset-colors">
+        <button style="background: #000000" onclick="setFontColor('#000000')"></button>
+        <button style="background: #ff0000" onclick="setFontColor('#ff0000')"></button>
+        <button style="background: #0000ff" onclick="setFontColor('#0000ff')"></button>
+        <button style="background: #008000" onclick="setFontColor('#008000')"></button>
+      </div>
+    </div>
+  </div>
+  <div class="section style-info">
+    <div class="section-title">스타일 정보</div>
+    <div class="info-content">
+      <p>• 스타일 모드에서 셀을 드래그하여 선택하세요.</p>
+      <p>• 원하는 스타일을 설정하고 "스타일 적용" 버튼을 클릭하세요.</p>
+      <p>• 스타일을 취소하려면 "스타일 모드 취소" 버튼을 클릭하세요.</p>
+      <p>• 여러 셀을 동시에 선택하여 한 번에 스타일을 적용할 수 있습니다.</p>
+    </div>
+  </div>
+  <div class="status">
+    현재 상태: <span id="styleStatus">대기중...</span>
+  </div>
+  <div class="button-group" style="margin-top: 15px; justify-content: flex-end;">
+    <button class="apply" onclick="applyStyle()">스타일 적용</button>
+    <button class="close" onclick="cancelStyleMode()">닫기</button>
+  </div>
+</div>
+
+<div class="align-panel" id="alignPanel">
+  <div class="title">셀 정렬</div>
+  <div class="section align-mode">
+    <div class="section-title">정렬 모드</div>
+    <div class="button-group">
+      <button class="mode" onclick="toggleAlignMode()">정렬 모드 활성화</button>
+      <button class="cancel" onclick="cancelAlignMode()">정렬 모드 취소</button>
+    </div>
+  </div>
+  <div class="section align-actions">
+    <div class="section-title">정렬 방향</div>
+    <div class="align-buttons">
+      <button class="align-left" onclick="applyAlignment('left')">
+        <span class="icon">⬅️</span>
+        <span class="text">좌측 정렬</span>
+      </button>
+      <button class="align-center" onclick="applyAlignment('center')">
+        <span class="icon">↔️</span>
+        <span class="text">중앙 정렬</span>
+      </button>
+      <button class="align-right" onclick="applyAlignment('right')">
+        <span class="icon">➡️</span>
+        <span class="text">우측 정렬</span>
+      </button>
+    </div>
+  </div>
+  <div class="section align-info">
+    <div class="section-title">정렬 정보</div>
+    <div class="info-content">
+      <p>• 정렬 모드에서 셀을 드래그하여 선택하세요.</p>
+      <p>• 원하는 정렬 방향 버튼을 클릭하여 정렬을 적용하세요.</p>
+      <p>• 정렬을 취소하려면 "정렬 모드 취소" 버튼을 클릭하세요.</p>
+      <p>• 여러 셀을 동시에 선택하여 한 번에 정렬할 수 있습니다.</p>
+    </div>
+  </div>
+  <div class="status">
+    현재 상태: <span id="alignStatus">대기중...</span>
+  </div>
+  <div class="button-group" style="margin-top: 15px; justify-content: flex-end;">
+    <button class="close" onclick="cancelAlignMode()">닫기</button>
+  </div>
+</div>
+
+<div class="edit-mode-button" onclick="toggleFullscreen()">편집 모드로 전환</div>
+<div id="modeMessage" class="mode-message"></div>
+
+<div class="number-panel" id="numberPanel">
+  <div class="title">숫자 입력 설정</div>
+  <div class="number-group">
+    <label>입력 형식</label>
+    <select id="numberFormat">
+      <option value="thousand" selected>천 단위 구분</option>
+      <option value="number">일반 숫자</option>
+      <option value="currency">통화 형식</option>
+      <option value="percent">백분율</option>
+      <option value="decimal">소수점</option>
+    </select>
+  </div>
+  <div class="number-group">
+    <label>단위 변환</label>
+    <select id="unitType">
+      <option value="accounting" selected>회계 단위</option>
+      <option value="none">단위 없음</option>
+      <option value="currency">금액 단위</option>
+      <option value="custom">사용자 정의</option>
+    </select>
+    <div class="unit-group">
+      <input type="text" id="unitPrefix" placeholder="접두어">
+      <input type="text" id="unitSuffix" placeholder="접미어">
+    </div>
+  </div>
+  <div class="number-group">
+    <label>자주 사용하는 단위</label>
+    <div class="preset-buttons">
+      <button onclick="setUnit('원')">원</button>
+      <button onclick="setUnit('천원')">천원</button>
+      <button onclick="setUnit('만원')">만원</button>
+      <button onclick="setUnit('백만원')">백만원</button>
+      <button onclick="setUnit('억원')">억원</button>
+      <button onclick="setUnit('개')">개</button>
+      <button onclick="setUnit('SET')">SET</button>
+      <button onclick="setUnit('BOX')">BOX</button>
+    </div>
+  </div>
+  <div class="number-group">
+    <label>다중 셀 입력</label>
+    <div class="multi-input" id="multiInput">
+      <div id="cellInputs"></div>
+      <div class="quick-input">
+        <button onclick="applySameValue()">모두 같은 값</button>
+        <button onclick="applySequence()">순차 증가</button>
+        <button onclick="applyRandom()">랜덤 값</button>
+      </div>
+    </div>
+  </div>
+  <div class="number-group" style="margin-top: 15px; text-align: center; border-top: 1px solid #dee2e6; padding-top: 15px;">
+    <button onclick="applyNumberFormat()" style="margin-right: 5px; padding: 5px 15px; font-size: 14px; background: #4a90e2; color: white; border: none; border-radius: 4px; cursor: pointer;">적용</button>
+    <button onclick="cancelNumberMode()" style="padding: 5px 15px; font-size: 14px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">취소</button>
+  </div>
+</div>
+
+<div class="hyperlink-panel" id="hyperlinkPanel">
+  <div class="title">하이퍼링크 설정</div>
+  <div class="hyperlink-group">
+    <div class="hyperlink-list" id="hyperlinkList">
+      <div class="hyperlink-item">
+        <input type="text" class="search-input" placeholder="검색어 (정규식)">
+        <input type="text" class="url-input" placeholder="URL">
+        <button class="remove-btn" onclick="removeHyperlinkItem(this)">×</button>
+      </div>
+    </div>
+    <button class="add-btn" onclick="addHyperlinkItem()">+ 검색어/URL 추가</button>
+    <div class="current-links">
+      <h4>현재 적용된 하이퍼링크</h4>
+      <ul id="currentLinksList"></ul>
+    </div>
+  </div>
+  <div class="button-group">
+    <button class="apply" onclick="applyHyperlinks()">적용</button>
+    <button class="cancel" onclick="cancelHyperlinkMode()">취소</button>
+  </div>
+</div>
+
+<div class="table-manipulation-panel" id="tableManipulationPanel">
+  <div class="title">테이블 조작</div>
+  <div class="section rows">
+    <div class="section-title">행 조작</div>
+    <div class="button-group">
+      <button class="add" onclick="addRow()">입력 행 추가</button>
+      <button class="remove" onclick="deleteRow()">입력 행 삭제</button>
+    </div>
+  </div>
+  <div class="section headers">
+    <div class="section-title">제목 행 조작</div>
+    <div class="button-group">
+      <button class="add" onclick="addHeader()">제목 행 추가</button>
+      <button class="remove" onclick="deleteHeader()">제목 행 삭제</button>
+    </div>
+  </div>
+  <div class="section columns">
+    <div class="section-title">열 조작</div>
+    <div class="button-group">
+      <button class="add" onclick="addColumn()">열 추가</button>
+      <button class="remove" onclick="deleteColumn()">열 삭제</button>
+    </div>
+  </div>
+  <div class="status">
+    현재 상태: <span id="tableStatus">로딩중...</span>
+  </div>
+  <div class="button-group" style="margin-top: 15px; justify-content: flex-end;">
+    <button class="cancel" onclick="cancelTableManipulation()">닫기</button>
+  </div>
+</div>
+
+<div class="sum-row-panel" id="sumRowPanel">
+  <div class="title">합계 행 관리</div>
+  <div class="sum-row-list">
+    <!-- 합계 행 목록이 여기에 동적으로 추가될 예정 -->
+  </div>
+  <div class="button-group">
+    <button class="add" onclick="addSumRow()">합계 행 추가</button>
+    <button class="remove" onclick="removeSumRows()">합계 행 제거</button>
+  </div>
+</div>
+
+<div class="merge-panel" id="mergePanel">
+  <div class="title">셀 병합</div>
+  <div class="section merge-mode">
+    <div class="section-title">병합 모드</div>
+    <div class="button-group">
+      <button class="mode" onclick="toggleMergeMode()">병합 모드 활성화</button>
+      <button class="cancel" onclick="cancelMergeMode()">병합 모드 취소</button>
+    </div>
+  </div>
+  <div class="section merge-actions">
+    <div class="section-title">병합 작업</div>
+    <div class="button-group">
+      <button class="merge" onclick="mergeCells()">선택 셀 병합</button>
+      <button class="undo" onclick="undoMerge()">병합 되돌리기</button>
+    </div>
+  </div>
+  <div class="section merge-info">
+    <div class="section-title">병합 정보</div>
+    <div class="info-content">
+      <p>• 병합 모드에서 셀을 드래그하여 선택하세요.</p>
+      <p>• 선택한 셀들을 병합하려면 "선택 셀 병합" 버튼을 클릭하세요.</p>
+      <p>• 병합을 취소하려면 "병합 모드 취소" 버튼을 클릭하세요.</p>
+      <p>• 마지막 병합을 되돌리려면 "병합 되돌리기" 버튼을 클릭하세요.</p>
+    </div>
+  </div>
+  <div class="status">
+    현재 상태: <span id="mergeStatus">대기중...</span>
+  </div>
+  <div class="button-group" style="margin-top: 15px; justify-content: flex-end;">
+    <button class="close" onclick="cancelMergeMode()">닫기</button>
+  </div>
+</div>
+
+<script>
+// 페이지 로드 시 확대/축소 비율을 112%로 설정
+window.addEventListener('load', function() {
+  document.body.style.zoom = "112%";
+});
+
+let undoStack = [];
+let mergeMode = false;
+let isSelecting = false;
+let selectedCell = null;
+let alignMode = false;
+let styleMode = false;
+let numberMode = false;
+
+function saveState() {
+  undoStack.push(document.getElementById('editableTable').innerHTML);
+  if (undoStack.length > 10) undoStack.shift();
+}
+
+function undoMerge() {
+  if (!undoStack.length) return alert('되돌릴 작업이 없습니다.');
+  document.getElementById('editableTable').innerHTML = undoStack.pop();
+  initSelectable();
+}
+
+function addRow() {
+  saveState();
+  const tbody = document.getElementById('tbody');
+  const rowCount = tbody.rows.length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${rowCount}</td>` + '<td contenteditable="true"></td>'.repeat(8);
+  tbody.appendChild(tr);
+  initSelectable();
+  updateTableStatus();
+}
+
+function deleteRow() {
+  saveState();
+  const tbody = document.getElementById('tbody');
+  if (tbody.rows.length > 1) {
+    tbody.deleteRow(-1);
+    updateTableStatus();
+  }
+}
+
+function addHeader() {
+  saveState();
+  const tr = document.createElement('tr');
+  for (let i = 0; i < 9; i++) {
+    const th = document.createElement('th');
+    th.contentEditable = 'true';
+    th.style.background = '#dceeff';
+    tr.appendChild(th);
+  }
+  document.querySelector('#editableTable thead').appendChild(tr);
+  updateTableStatus();
+}
+
+function deleteHeader() {
+  saveState();
+  const thead = document.querySelector('#editableTable thead');
+  if (thead.rows.length > 1) {
+    thead.deleteRow(-1);
+    updateTableStatus();
+  }
+}
+
+function addColumn() {
+  saveState();
+  document.querySelectorAll('#editableTable tr').forEach(row => {
+    const cell = row.insertCell(-1);
+    cell.contentEditable = 'true';
+    if (row.parentElement.tagName === 'THEAD') {
+      cell.style.background = '#dceeff';
+    }
+  });
+  initSelectable();
+  updateTableStatus();
+}
+
+function deleteColumn() {
+  saveState();
+  document.querySelectorAll('#editableTable tr').forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(-1);
+  });
+  initSelectable();
+  updateTableStatus();
+}
+
+function showModeMessage(message) {
+  const messageBox = document.getElementById('modeMessage');
+  messageBox.textContent = message;
+  messageBox.style.display = 'block';
+  setTimeout(() => {
+    messageBox.style.display = 'none';
+  }, 3000);
+}
+
+function toggleMergeMode() {
+  mergeMode = true;
+  alignMode = false;
+  styleMode = false;
+  clearSelection();
+  document.getElementById('alignPanel').style.display = 'none';
+  document.getElementById('stylePanel').style.display = 'none';
+  
+  // 병합 패널 표시
+  const mergePanel = document.getElementById('mergePanel');
+  mergePanel.style.display = 'block';
+  initMergePanelDrag();
+  updateMergeStatus('병합 모드 활성화 - 셀을 선택하세요');
+  
+  showModeMessage('병합 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+}
+
+function cancelMergeMode() {
+  mergeMode = false;
+  clearSelection();
+  const mergePanel = document.getElementById('mergePanel');
+  mergePanel.style.display = 'none';
+  mergePanel.style.transform = 'translate(0, 0)';
+  updateMergeStatus('대기중...');
+}
+
+function initMergePanelDrag() {
+  const mergePanel = document.getElementById('mergePanel');
+  const title = mergePanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, mergePanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function updateMergeStatus(message) {
+  const status = document.getElementById('mergeStatus');
+  status.textContent = message;
+}
+
+function mergeCells() {
+  if (!mergeMode) {
+    updateMergeStatus('병합 모드를 먼저 활성화하세요');
+    return;
+  }
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length < 2) {
+    updateMergeStatus('병합할 셀을 2개 이상 선택하세요');
+    return;
+  }
+  
+  saveState();
+  const table = document.getElementById('editableTable');
+  const rows = selected.map(c => c.parentElement.rowIndex);
+  const cols = selected.map(c => c.cellIndex);
+  const r1 = Math.min(...rows), r2 = Math.max(...rows);
+  const c1 = Math.min(...cols), c2 = Math.max(...cols);
+  
+  // 병합 작업 수행
+  const master = table.rows[r1].cells[c1];
+  let combined = master.innerHTML;
+  for (let i = r1; i <= r2; i++) {
+    for (let j = c1; j <= c2; j++) {
+      if (i === r1 && j === c1) continue;
+      combined += '<br>' + table.rows[i].cells[j]?.innerHTML;
+    }
+  }
+  
+  // 병합 적용
+  master.innerHTML = combined;
+  master.rowSpan = r2 - r1 + 1;
+  master.colSpan = c2 - c1 + 1;
+  
+  // 스타일 적용
+  master.style.height = 'auto';
+  master.style.minHeight = '40px';
+  master.style.whiteSpace = 'pre-wrap';
+  master.style.verticalAlign = 'middle';
+  
+  // 높이 자동 조정
+  const contentHeight = master.scrollHeight;
+  if (contentHeight > 40) {
+    master.style.height = contentHeight + 'px';
+  }
+  
+  // 편집 가능 설정
+  master.contentEditable = 'true';
+  
+  // 이벤트 리스너 추가
+  master.onmousedown = e => {
+    if (!mergeMode && !alignMode && !styleMode && !numberMode) return;
+    e.preventDefault();
+    if (!isSelecting) {
+      saveState();
+      isSelecting = true;
+    }
+    master.classList.add('selected');
+    if (numberMode) {
+      updateMultiInput();
+    }
+  };
+  
+  master.onmouseover = e => {
+    if ((mergeMode || alignMode || styleMode || numberMode) && isSelecting) {
+      e.target.classList.add('selected');
+      if (numberMode) {
+        updateMultiInput();
+      }
+    }
+  };
+  
+  master.onmouseup = () => {
+    isSelecting = false;
+  };
+  
+  // 내용 변경 시 높이 자동 조정
+  master.addEventListener('input', function() {
+    this.style.height = 'auto';
+    const newHeight = this.scrollHeight;
+    if (newHeight > 40) {
+      this.style.height = newHeight + 'px';
+    }
+    
+    const rowSpan = parseInt(this.getAttribute('rowspan')) || 1;
+    const rowHeight = Math.ceil(newHeight / rowSpan);
+    for (let i = 0; i < rowSpan; i++) {
+      const row = table.rows[r1 + i];
+      if (row) {
+        row.style.height = rowHeight + 'px';
+      }
+    }
+  });
+  
+  // 병합된 셀 제거
+  for (let i = r2; i >= r1; i--) {
+    for (let j = c2; j >= c1; j--) {
+      if (i === r1 && j === c1) continue;
+      table.rows[i].deleteCell(j);
+    }
+  }
+  
+  mergeMode = false;
+  clearSelection();
+  updateMergeStatus('셀 병합 완료');
+  
+  // 3초 후 상태 메시지 초기화
+  setTimeout(() => {
+    updateMergeStatus('대기중...');
+  }, 3000);
+}
+
+function toggleAlignMode() {
+  alignMode = true;
+  mergeMode = false;
+  styleMode = false;
+  clearSelection();
+  const alignPanel = document.getElementById('alignPanel');
+  alignPanel.style.display = 'block';
+  initAlignPanelDrag();
+  updateAlignStatus('정렬 모드 활성화 - 셀을 선택하세요');
+  showModeMessage('정렬 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+}
+
+function cancelAlignMode() {
+  alignMode = false;
+  clearSelection();
+  const alignPanel = document.getElementById('alignPanel');
+  alignPanel.style.display = 'none';
+  alignPanel.style.transform = 'translate(0, 0)';
+  updateAlignStatus('대기중...');
+}
+
+function initAlignPanelDrag() {
+  const alignPanel = document.getElementById('alignPanel');
+  const title = alignPanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, alignPanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function updateAlignStatus(message) {
+  const status = document.getElementById('alignStatus');
+  status.textContent = message;
+}
+
+function applyAlignment(align) {
+  if (!alignMode) {
+    updateAlignStatus('정렬 모드를 먼저 활성화하세요');
+    return;
+  }
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) {
+    updateAlignStatus('정렬할 셀을 선택하세요');
+    return;
+  }
+  
+  selected.forEach(cell => cell.style.textAlign = align);
+  alignMode = false;
+  clearSelection();
+  updateAlignStatus('정렬 적용 완료');
+  
+  // 3초 후 상태 메시지 초기화
+  setTimeout(() => {
+    updateAlignStatus('대기중...');
+  }, 3000);
+}
+
+function toggleStyleMode() {
+  styleMode = true;
+  mergeMode = false;
+  alignMode = false;
+  clearSelection();
+  const stylePanel = document.getElementById('stylePanel');
+  stylePanel.style.display = 'block';
+  initStylePanelDrag();
+  updateStyleStatus('스타일 모드 활성화 - 셀을 선택하세요');
+  showModeMessage('스타일 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+}
+
+function cancelStyleMode() {
+  styleMode = false;
+  clearSelection();
+  const stylePanel = document.getElementById('stylePanel');
+  stylePanel.style.display = 'none';
+  stylePanel.style.transform = 'translate(0, 0)';
+  updateStyleStatus('대기중...');
+}
+
+function initStylePanelDrag() {
+  const stylePanel = document.getElementById('stylePanel');
+  const title = stylePanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      setTranslate(currentX, currentY, stylePanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function updateStyleStatus(message) {
+  const status = document.getElementById('styleStatus');
+  status.textContent = message;
+}
+
+function applyStyle() {
+  if (!styleMode) {
+    updateStyleStatus('스타일 모드를 먼저 활성화하세요');
+    return;
+  }
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) {
+    updateStyleStatus('스타일을 적용할 셀을 선택하세요');
+    return;
+  }
+  
+  const fontSize = document.getElementById('fontSize').value;
+  const isBold = document.getElementById('fontBold').checked;
+  const fontColor = document.getElementById('fontColor').value;
+  
+  selected.forEach(cell => {
+    cell.style.fontSize = fontSize + 'px';
+    cell.style.fontWeight = isBold ? 'bold' : 'normal';
+    cell.style.color = fontColor;
+  });
+  
+  styleMode = false;
+  clearSelection();
+  updateStyleStatus('스타일 적용 완료');
+  
+  // 3초 후 상태 메시지 초기화
+  setTimeout(() => {
+    updateStyleStatus('대기중...');
+  }, 3000);
+}
+
+function initSelectable() {
+  clearSelection();
+  document.querySelectorAll('#editableTable td, #editableTable th').forEach(cell => {
+    // 이미 이벤트 리스너가 있는 경우 제거
+    const newCell = cell.cloneNode(true);
+    cell.parentNode.replaceChild(newCell, cell);
+    
+    // contentEditable 속성이 있는 경우에만 input 이벤트 리스너 추가
+    if (newCell.contentEditable === 'true') {
+      newCell.addEventListener('input', function() {
+        adjustCellHeight(this);
+      });
+    }
+    
+    newCell.onmousedown = e => {
+      if (!mergeMode && !alignMode && !styleMode && !numberMode) return;
+      e.preventDefault();
+      if (!isSelecting) {
+        saveState();
+        isSelecting = true;
+      }
+      newCell.classList.add('selected');
+      if (numberMode) {
+        updateMultiInput();
+      }
+    };
+    newCell.onmouseover = e => {
+      if ((mergeMode || alignMode || styleMode || numberMode) && isSelecting) {
+        e.target.classList.add('selected');
+        if (numberMode) {
+          updateMultiInput();
+        }
+      }
+    };
+    newCell.onmouseup = () => {
+      isSelecting = false;
+    };
+  });
+  document.body.onmouseup = () => (isSelecting = false);
+}
+
+function clearSelection() {
+  document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
+}
+
+function toggleHyperlinkMode() {
+  const hyperlinkPanel = document.getElementById('hyperlinkPanel');
+  hyperlinkPanel.style.display = 'block';
+  initHyperlinkPanelDrag();
+  updateCurrentLinksList(); // 현재 링크 상태 업데이트
+}
+
+function cancelHyperlinkMode() {
+  const hyperlinkPanel = document.getElementById('hyperlinkPanel');
+  hyperlinkPanel.style.display = 'none';
+  hyperlinkPanel.style.transform = 'translate(0, 0)';
+}
+
+function initHyperlinkPanelDrag() {
+  const hyperlinkPanel = document.getElementById('hyperlinkPanel');
+  const title = hyperlinkPanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, hyperlinkPanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function addHyperlinkItem() {
+  const list = document.getElementById('hyperlinkList');
+  const item = document.createElement('div');
+  item.className = 'hyperlink-item';
+  item.innerHTML = `
+    <input type="text" class="search-input" placeholder="검색어 (정규식)">
+    <input type="text" class="url-input" placeholder="URL">
+    <button class="remove-btn" onclick="removeHyperlinkItem(this)">×</button>
+  `;
+  list.appendChild(item);
+}
+
+function removeHyperlinkItem(button) {
+  const item = button.parentElement;
+  if (document.querySelectorAll('.hyperlink-item').length > 1) {
+    item.remove();
+  } else {
+    // 마지막 항목은 비우기만 함
+    item.querySelectorAll('input').forEach(input => input.value = '');
+  }
+}
+
+function updateCurrentLinksList() {
+  const list = document.getElementById('currentLinksList');
+  list.innerHTML = '';
+  
+  // 현재 테이블의 모든 하이퍼링크 수집
+  const linkMap = new Map();
+  document.querySelectorAll('#editableTable a').forEach(a => {
+    const url = a.href;
+    const text = a.textContent;
+    if (!linkMap.has(url)) {
+      linkMap.set(url, new Set());
+    }
+    linkMap.get(url).add(text);
+  });
+  
+  // 링크 목록 표시
+  linkMap.forEach((texts, url) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>${url}</span>
+      <span class="link-count">(${texts.size}개 텍스트)</span>
+    `;
+    list.appendChild(li);
+  });
+  
+  if (linkMap.size === 0) {
+    const li = document.createElement('li');
+    li.textContent = '적용된 하이퍼링크가 없습니다.';
+    list.appendChild(li);
+  }
+}
+
+function applyHyperlinks() {
+  const items = document.querySelectorAll('.hyperlink-item');
+  const validItems = [];
+  
+  // 유효한 입력 항목 수집
+  items.forEach(item => {
+    const searchInput = item.querySelector('.search-input');
+    const urlInput = item.querySelector('.url-input');
+    const pattern = searchInput.value.trim();
+    const url = urlInput.value.trim();
+    
+    if (pattern && url) {
+      try {
+        new RegExp(pattern); // 정규식 검증
+        validItems.push({ pattern, url });
+      } catch (e) {
+        alert(`유효하지 않은 정규식입니다: ${pattern}`);
+        return;
+      }
+    }
+  });
+  
+  if (validItems.length === 0) {
+    alert('최소 하나 이상의 검색어와 URL을 입력하세요.');
+    return;
+  }
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  const targetCells = selected.length > 0 ? selected : document.querySelectorAll('#editableTable tbody td');
+  
+  targetCells.forEach(td => {
+    let content = td.innerHTML;
+    validItems.forEach(({ pattern, url }) => {
+      try {
+        const regex = new RegExp(pattern, 'g');
+        content = content.replace(regex, match => 
+          `<a href="${url}" target="_blank" contenteditable="false">${match}</a>`
+        );
+      } catch (e) {
+        console.error(`정규식 처리 중 오류 발생: ${pattern}`, e);
+      }
+    });
+    td.innerHTML = content;
+  });
+  
+  updateCurrentLinksList(); // 링크 상태 업데이트
+  cancelHyperlinkMode();
+}
+
+async function downloadHTML() {
+  try {
+    // 현재 테이블 상태 복제
+    const tableClone = document.getElementById('editableTable').cloneNode(true);
+    
+    // NO. 열의 너비 자동 조정
+    const noColumn = tableClone.querySelector('th:first-child');
+    if (noColumn) {
+      noColumn.style.width = 'auto';
+      noColumn.style.minWidth = 'auto';
+      noColumn.style.whiteSpace = 'nowrap';
+    }
+    
+    // 모든 셀의 현재 상태 보존
+    const cells = tableClone.querySelectorAll('td, th');
+    cells.forEach(cell => {
+      // 스타일 정보 보존
+      const computedStyle = window.getComputedStyle(cell);
+      cell.style.cssText = computedStyle.cssText;
+      
+      // 데이터 속성 보존
+      const dataAttributes = cell.attributes;
+      for (let i = 0; i < dataAttributes.length; i++) {
+        const attr = dataAttributes[i];
+        if (attr.name.startsWith('data-')) {
+          cell.setAttribute(attr.name, attr.value);
+        }
+      }
+      
+      // 병합 상태 보존
+      if (cell.hasAttribute('rowspan')) {
+        cell.setAttribute('rowspan', cell.getAttribute('rowspan'));
+      }
+      if (cell.hasAttribute('colspan')) {
+        cell.setAttribute('colspan', cell.getAttribute('colspan'));
+      }
+      
+      // contentEditable 속성 제거
+      cell.removeAttribute('contenteditable');
+      
+      // 이벤트 리스너 제거
+      cell.onmousedown = null;
+      cell.onmouseover = null;
+      cell.onmouseup = null;
+      
+      // 하이퍼링크 보존
+      const links = cell.querySelectorAll('a');
+      links.forEach(link => {
+        link.removeAttribute('contenteditable');
+        link.style.pointerEvents = 'auto';
+      });
+    });
+
+    // HTML 생성
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // 원본 테이블을 수정된 테이블로 교체
+    const originalTable = tempDiv.querySelector('#editableTable');
+    originalTable.parentNode.replaceChild(tableClone, originalTable);
+    
+    // 컨트롤 패널 및 불필요한 요소 제거
+    const elementsToRemove = [
+      '.controls',
+      '.style-panel',
+      '.align-panel',
+      '.number-panel',
+      '.hyperlink-panel',
+      '.table-manipulation-panel',
+      '.sum-row-panel',
+      '.merge-panel',
+      '.edit-mode-button',
+      '.mode-message'
+    ];
+    
+    elementsToRemove.forEach(selector => {
+      const element = tempDiv.querySelector(selector);
+      if (element) element.remove();
+    });
+    
+    // 테이블 스타일 최적화
+    const table = tempDiv.querySelector('#editableTable');
+    if (table) {
+      table.style.width = '100%';
+      table.style.margin = '0 auto';
+      table.style.borderCollapse = 'collapse';
+      table.style.tableLayout = 'auto';
+    }
+    
+    const finalHtml = '<!DOCTYPE html>' + tempDiv.innerHTML;
+    const blob = new Blob(['﻿' + finalHtml], { type: 'text/html' });
+    
+    // 현재 날짜를 YYMMDD 형식으로 가져오기
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+    
+    // 파일명 생성
+    const defaultFileName = `협의_안건_목록_${dateStr}.html`;
+
+    // 파일 저장 다이얼로그 표시
+    const handle = await window.showSaveFilePicker({
+      suggestedName: defaultFileName,
+      types: [{
+        description: 'HTML 파일',
+        accept: {'text/html': ['.html']},
+      }],
+    });
+
+    // 파일 저장
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+
+    alert('파일이 성공적으로 저장되었습니다.');
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('파일 저장 중 오류가 발생했습니다:', err);
+      alert('파일 저장 중 오류가 발생했습니다.');
+    }
+  }
+}
+
+function toggleFullscreen() {
+  document.body.classList.toggle('fullscreen-mode');
+}
+
+function setFontSize(size) {
+  document.getElementById('fontSize').value = size;
+  if (selectedCell && styleMode) {
+    selectedCell.style.fontSize = size + 'px';
+  }
+}
+
+function setFontColor(color) {
+  document.getElementById('fontColor').value = color;
+  if (selectedCell && styleMode) {
+    selectedCell.style.color = color;
+  }
+}
+
+function toggleNumberMode() {
+  numberMode = true;
+  mergeMode = false;
+  alignMode = false;
+  styleMode = false;
+  clearSelection();
+  const numberPanel = document.getElementById('numberPanel');
+  numberPanel.style.display = 'block';
+  document.getElementById('alignPanel').style.display = 'none';
+  document.getElementById('stylePanel').style.display = 'none';
+  showModeMessage('숫자 입력 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+  initNumberPanelDrag();
+}
+
+function cancelNumberMode() {
+  numberMode = false;
+  clearSelection();
+  const numberPanel = document.getElementById('numberPanel');
+  numberPanel.style.display = 'none';
+  numberPanel.style.transform = 'translate(0, 0)';
+}
+
+function initNumberPanelDrag() {
+  const numberPanel = document.getElementById('numberPanel');
+  const title = numberPanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, numberPanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function setUnit(unit) {
+  document.getElementById('unitSuffix').value = unit;
+}
+
+function updateMultiInput() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  const multiInput = document.getElementById('multiInput');
+  const cellInputs = document.getElementById('cellInputs');
+  
+  if (selected.length > 1) {
+    multiInput.classList.add('active');
+    cellInputs.innerHTML = '';
+    
+    selected.forEach((cell, index) => {
+      const cellInput = document.createElement('div');
+      cellInput.className = 'cell-input';
+      
+      // 현재 셀의 값을 가져옴
+      let currentValue = cell.textContent.trim();
+      // 숫자가 아닌 문자 제거 (단위 등)
+      currentValue = currentValue.replace(/[^0-9.-]/g, '');
+      // 숫자로 변환
+      let numValue = parseFloat(currentValue);
+      if (isNaN(numValue)) {
+        numValue = 0;
+      }
+      
+      cellInput.innerHTML = `
+        <label>셀 ${index + 1}</label>
+        <input type="number" 
+               data-cell-index="${index}" 
+               value="${numValue}" 
+               onchange="updateCellValue(this)">
+      `;
+      cellInputs.appendChild(cellInput);
+    });
+  } else {
+    multiInput.classList.remove('active');
+  }
+}
+
+function updateCellValue(input) {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  const index = parseInt(input.dataset.cellIndex);
+  if (selected[index]) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    // 입력값을 숫자로 변환
+    let numValue = parseFloat(input.value);
+    if (isNaN(numValue)) {
+      numValue = 0;
+    }
+    
+    // 형식 적용
+    selected[index].textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+    selected[index].style.textAlign = 'right';
+  }
+}
+
+function applySameValue() {
+  const value = prompt('모든 셀에 적용할 값을 입력하세요:');
+  if (value === null) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  // 입력값을 숫자로 변환
+  let numValue = parseFloat(value);
+  if (isNaN(numValue)) {
+    numValue = 0;
+  }
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach(cell => {
+    cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+    cell.style.textAlign = 'right';
+  });
+  updateMultiInput();
+}
+
+function applySequence() {
+  const start = parseInt(prompt('시작 값을 입력하세요:'));
+  if (isNaN(start)) return;
+  
+  const step = parseInt(prompt('증가 값을 입력하세요:'));
+  if (isNaN(step)) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach((cell, index) => {
+    const value = start + (index * step);
+    cell.textContent = formatNumber(value, format, unitType, prefix, suffix);
+    cell.style.textAlign = 'right';
+  });
+  updateMultiInput();
+}
+
+function applyRandom() {
+  const min = parseInt(prompt('최소 값을 입력하세요:'));
+  if (isNaN(min)) return;
+  
+  const max = parseInt(prompt('최대 값을 입력하세요:'));
+  if (isNaN(max)) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach(cell => {
+    const value = Math.floor(Math.random() * (max - min + 1)) + min;
+    cell.textContent = formatNumber(value, format, unitType, prefix, suffix);
+    cell.style.textAlign = 'right';
+  });
+  updateMultiInput();
+}
+
+function formatNumber(value, format, unitType, prefix, suffix) {
+  if (!value && value !== 0) return '';
+  
+  let num = parseFloat(value);
+  if (isNaN(num)) return value;
+
+  let formattedNum;
+  switch (format) {
+    case 'thousand':
+      formattedNum = num.toLocaleString('ko-KR');
+      break;
+    case 'currency':
+      formattedNum = num.toLocaleString('ko-KR', {
+        style: 'currency',
+        currency: 'KRW',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+      break;
+    case 'percent':
+      formattedNum = (num * 100).toLocaleString('ko-KR') + '%';
+      break;
+    case 'decimal':
+      formattedNum = num.toLocaleString('ko-KR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      break;
+    default:
+      formattedNum = num.toLocaleString('ko-KR');
+  }
+
+  // 단위 타입에 따른 추가 포맷팅
+  if (unitType === 'accounting') {
+    if (suffix) {
+      formattedNum = formattedNum.replace(/[^0-9,]/g, '') + suffix;
+    }
+  } else if (unitType === 'currency') {
+    if (prefix) {
+      formattedNum = prefix + formattedNum.replace(/[^0-9,]/g, '');
+    }
+    if (suffix) {
+      formattedNum = formattedNum + suffix;
+    }
+  }
+
+  return formattedNum;
+}
+
+function applyNumberFormat() {
+  if (!numberMode) return alert('숫자 입력 모드를 활성화하세요.');
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) return alert('숫자 형식을 적용할 셀을 선택하세요.');
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  const minValue = document.getElementById('minValue').value;
+  const maxValue = document.getElementById('maxValue').value;
+  
+  // 선택된 셀들의 열 인덱스 추출
+  const selectedColumns = new Set(selected.map(cell => cell.cellIndex));
+  
+  selected.forEach(cell => {
+    // 현재 셀의 값을 가져옴
+    let currentValue = cell.textContent.trim();
+    
+    // 숫자가 아닌 문자 제거 (단위 등)
+    currentValue = currentValue.replace(/[^0-9.-]/g, '');
+    
+    // 숫자로 변환
+    let numValue = parseFloat(currentValue);
+    if (isNaN(numValue)) {
+      numValue = 0;
+    }
+    
+    // 범위 체크
+    if (minValue && numValue < parseFloat(minValue)) {
+      numValue = parseFloat(minValue);
+    }
+    if (maxValue && numValue > parseFloat(maxValue)) {
+      numValue = parseFloat(maxValue);
+    }
+    
+    // 형식 적용
+    cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+    
+    // 데이터 속성 저장
+    cell.setAttribute('data-number-format', format);
+    cell.setAttribute('data-unit-type', unitType);
+    cell.setAttribute('data-unit-prefix', prefix);
+    cell.setAttribute('data-unit-suffix', suffix);
+    cell.setAttribute('data-min-value', minValue);
+    cell.setAttribute('data-max-value', maxValue);
+    
+    // 우측 정렬 적용
+    cell.style.textAlign = 'right';
+  });
+  
+  // 선택된 열의 자동 열폭 조정
+  adjustColumnWidths(selectedColumns);
+  
+  numberMode = false;
+  clearSelection();
+  document.getElementById('numberPanel').style.display = 'none';
+}
+
+function adjustColumnWidths(selectedColumns) {
+  const table = document.getElementById('editableTable');
+  const rows = table.rows;
+  
+  // 각 선택된 열에 대해
+  selectedColumns.forEach(colIndex => {
+    let maxWidth = 0;
+    const padding = 20; // 셀 패딩 고려
+    
+    // 해당 열의 모든 셀을 검사하여 최대 너비 계산
+    for (let i = 0; i < rows.length; i++) {
+      const cell = rows[i].cells[colIndex];
+      if (cell) {
+        // 임시 span 요소를 생성하여 실제 텍스트 너비 측정
+        const span = document.createElement('span');
+        span.style.visibility = 'hidden';
+        span.style.position = 'absolute';
+        span.style.whiteSpace = 'nowrap';
+        span.style.font = window.getComputedStyle(cell).font;
+        span.textContent = cell.textContent;
+        document.body.appendChild(span);
+        
+        const width = span.offsetWidth + padding;
+        maxWidth = Math.max(maxWidth, width);
+        
+        document.body.removeChild(span);
+      }
+    }
+    
+    // 최소 너비 설정 (최소 100px)
+    maxWidth = Math.max(maxWidth, 100);
+    
+    // 해당 열의 모든 셀에 너비 적용
+    for (let i = 0; i < rows.length; i++) {
+      const cell = rows[i].cells[colIndex];
+      if (cell) {
+        cell.style.width = maxWidth + 'px';
+        cell.style.minWidth = maxWidth + 'px';
+      }
+    }
+  });
+}
+
+// 숫자 입력 필드에 이벤트 리스너 추가
+document.getElementById('numberFormat').addEventListener('change', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = this.value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+        cell.style.textAlign = 'right';
+      }
+    });
+  }
+});
+
+document.getElementById('unitType').addEventListener('change', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = this.value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+        cell.style.textAlign = 'right';
+      }
+    });
+  }
+});
+
+document.getElementById('unitPrefix').addEventListener('input', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = this.value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+        cell.style.textAlign = 'right';
+      }
+    });
+  }
+});
+
+document.getElementById('unitSuffix').addEventListener('input', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = this.value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+        cell.style.textAlign = 'right';
+      }
+    });
+  }
+});
+
+function removeSumRows() {
+  const tbody = document.getElementById('tbody');
+  const sumRows = Array.from(tbody.rows).filter(row => row.cells[0].textContent === '합계');
+  
+  if (sumRows.length === 0) {
+    alert('제거할 합계 행이 없습니다.');
+    return;
+  }
+  
+  // 가장 마지막 합계 행만 제거
+  const lastSumRow = sumRows[sumRows.length - 1];
+  lastSumRow.remove();
+}
+
+function addSumRow() {
+  saveState();
+  const tbody = document.getElementById('tbody');
+  const rows = tbody.rows;
+  
+  // 첫 번째 합계 행 찾기
+  let firstSumRow = null;
+  for (let i = 0; i < rows.length; i++) {
+    if (rows[i].cells[0].textContent === '합계') {
+      firstSumRow = rows[i];
+      break;
+    }
+  }
+  
+  let newRow;
+  if (firstSumRow) {
+    // 첫 번째 합계 행이 있으면 그것을 기준으로 복사
+    newRow = document.createElement('tr');
+    // 첫 번째 합계 행의 셀 수만큼 빈 셀 생성
+    for (let i = 0; i < firstSumRow.cells.length; i++) {
+      const newCell = document.createElement('td');
+      newCell.style.backgroundColor = '#DAF2D0';
+      // 모드 적용을 위한 속성 추가
+      newCell.contentEditable = 'true';
+      newCell.onmousedown = e => {
+        if (!mergeMode && !alignMode && !styleMode && !numberMode) return;
+        e.preventDefault();
+        if (!isSelecting) {
+          saveState();
+          isSelecting = true;
+        }
+        newCell.classList.add('selected');
+        if (numberMode) {
+          updateMultiInput();
+        }
+      };
+      newCell.onmouseover = e => {
+        if ((mergeMode || alignMode || styleMode || numberMode) && isSelecting) {
+          e.target.classList.add('selected');
+          if (numberMode) {
+            updateMultiInput();
+          }
+        }
+      };
+      newCell.onmouseup = () => {
+        isSelecting = false;
+      };
+      newRow.appendChild(newCell);
+    }
+  } else {
+    // 첫 번째 합계 행이 없으면 마지막 행을 복사
+    const lastRow = rows[rows.length - 1];
+    newRow = lastRow.cloneNode(true);
+    // 배경색 적용
+    Array.from(newRow.cells).forEach(cell => {
+      cell.style.backgroundColor = '#DAF2D0';
+      // 모드 적용을 위한 속성 추가
+      cell.contentEditable = 'true';
+      cell.onmousedown = e => {
+        if (!mergeMode && !alignMode && !styleMode && !numberMode) return;
+        e.preventDefault();
+        if (!isSelecting) {
+          saveState();
+          isSelecting = true;
+        }
+        cell.classList.add('selected');
+        if (numberMode) {
+          updateMultiInput();
+        }
+      };
+      cell.onmouseover = e => {
+        if ((mergeMode || alignMode || styleMode || numberMode) && isSelecting) {
+          e.target.classList.add('selected');
+          if (numberMode) {
+            updateMultiInput();
+          }
+        }
+      };
+      cell.onmouseup = () => {
+        isSelecting = false;
+      };
+    });
+  }
+  
+  // 각 열의 합계 계산
+  const table = document.getElementById('editableTable');
+  
+  for (let colIndex = 0; colIndex < newRow.cells.length; colIndex++) {
+    let sum = 0;
+    let hasNumbers = false;
+    let numberFormat = '';
+    let unitType = '';
+    let unitPrefix = '';
+    let unitSuffix = '';
+    let originalFormat = null;
+    
+    // 해당 열의 모든 행을 검사 (합계 행 제외)
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+      const cell = rows[rowIndex].cells[colIndex];
+      if (cell && rows[rowIndex].cells[0].textContent !== '합계') {
+        // 숫자 형식 정보 가져오기
+        if (rowIndex === 0) {
+          numberFormat = cell.getAttribute('data-number-format') || '';
+          unitType = cell.getAttribute('data-unit-type') || '';
+          unitPrefix = cell.getAttribute('data-unit-prefix') || '';
+          unitSuffix = cell.getAttribute('data-unit-suffix') || '';
+        }
+        
+        // 숫자 값 추출 및 합산
+        const value = cell.textContent.trim();
+        // 숫자가 아닌 문자 제거 (단위 등)
+        const numValue = parseFloat(value.replace(/[^0-9.-]/g, ''));
+        if (!isNaN(numValue)) {
+          sum += numValue;
+          hasNumbers = true;
+          // 원본 포맷 저장
+          if (!originalFormat && value !== numValue.toString()) {
+            originalFormat = value;
+          }
+        }
+      }
+    }
+    
+    // 합계 적용
+    if (hasNumbers) {
+      let formattedSum;
+      if (originalFormat) {
+        // 원본 포맷이 있는 경우 해당 포맷 유지
+        formattedSum = originalFormat.replace(/[0-9,.-]+/g, sum.toLocaleString('ko-KR'));
+      } else {
+        // 원본 포맷이 없는 경우 기본 포맷 적용
+        formattedSum = formatNumber(sum, numberFormat, unitType, unitPrefix, unitSuffix);
+      }
+      newRow.cells[colIndex].textContent = formattedSum;
+      newRow.cells[colIndex].style.fontWeight = 'bold';
+      newRow.cells[colIndex].style.textAlign = 'right';
+    }
+  }
+  
+  // NO.와 항목 셀 병합
+  if (firstSumRow) {
+    // 첫 번째 합계 행이 있는 경우, 동일한 구조로 병합
+    newRow.cells[0].colSpan = firstSumRow.cells[0].colSpan;
+    // 병합된 셀 이후의 셀들 제거
+    for (let i = newRow.cells.length - 1; i >= firstSumRow.cells.length; i--) {
+      newRow.deleteCell(i);
+    }
+  } else {
+    // 첫 번째 합계 행이 없는 경우, 기존 방식대로 병합
+    newRow.cells[0].colSpan = 2;
+    newRow.cells[1].remove();
+  }
+  
+  newRow.cells[0].textContent = '합계';
+  newRow.cells[0].style.fontWeight = 'bold';
+  newRow.cells[0].style.textAlign = 'center';
+  
+  // 새 행 추가
+  tbody.appendChild(newRow);
+  
+  // 모드 이벤트 리스너 재설정
+  initSelectable();
+}
+
+function toggleTableManipulation() {
+  const panel = document.getElementById('tableManipulationPanel');
+  panel.style.display = 'block';
+  initTableManipulationPanelDrag();
+  updateTableStatus();
+}
+
+function cancelTableManipulation() {
+  const panel = document.getElementById('tableManipulationPanel');
+  panel.style.display = 'none';
+  panel.style.transform = 'translate(0, 0)';
+}
+
+function initTableManipulationPanelDrag() {
+  const panel = document.getElementById('tableManipulationPanel');
+  const title = panel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, panel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function updateTableStatus() {
+  const tbody = document.getElementById('tbody');
+  const thead = document.querySelector('#editableTable thead');
+  const status = document.getElementById('tableStatus');
+  
+  const rowCount = tbody.rows.length;
+  const headerCount = thead.rows.length;
+  const columnCount = thead.rows[0].cells.length;
+  
+  status.textContent = `제목 행 ${headerCount}개, 입력 행 ${rowCount}개, 열 ${columnCount}개`;
+}
+
+for (let i = 0; i < 10; i++) addRow();
+initSelectable();  // ✅ 셀 선택 이벤트 활성화를 위한 호출 추가
+
+function updateSumRowStatus() {
+  const tbody = document.getElementById('tbody');
+  const sumRows = Array.from(tbody.rows).filter(row => row.cells[0].textContent === '합계');
+  const status = document.getElementById('sumRowStatus');
+  const list = document.getElementById('sumRowList');
+  
+  // 상태 업데이트
+  status.textContent = `현재 ${sumRows.length}개의 합계 행이 있습니다.`;
+  
+  // 합계 행 목록 업데이트
+  list.innerHTML = '';
+  sumRows.forEach((row, index) => {
+    const item = document.createElement('div');
+    item.className = 'sum-row-item';
+    item.innerHTML = `
+      <div class="sum-row-info">합계 행 ${index + 1}</div>
+      <button class="sum-row-remove" onclick="removeSpecificSumRow(${index})">제거</button>
+    `;
+    list.appendChild(item);
+  });
+  
+  if (sumRows.length === 0) {
+    const item = document.createElement('div');
+    item.className = 'sum-row-item';
+    item.innerHTML = '<div class="sum-row-info">합계 행이 없습니다.</div>';
+    list.appendChild(item);
+  }
+}
+
+function autoAdjustColumnWidths() {
+  const table = document.getElementById('editableTable');
+  const rows = table.rows;
+  const padding = 20; // 셀 패딩 고려
+  const minWidth = 100; // 최소 너비
+  const maxWidth = 500; // 최대 너비
+  
+  // 테이블을 제목 헤더의 "협" 자 끝 기준으로 정렬
+  const title = document.querySelector('h2');
+  const titleText = title.textContent;
+  const span = document.createElement('span');
+  span.style.visibility = 'hidden';
+  span.style.position = 'absolute';
+  span.style.whiteSpace = 'nowrap';
+  span.style.font = window.getComputedStyle(title).font;
+  span.textContent = titleText.substring(0, titleText.indexOf('협') + 1);
+  document.body.appendChild(span);
+  
+  const titleLeft = title.getBoundingClientRect().left;
+  const titleWidth = span.offsetWidth;
+  const tableLeft = table.getBoundingClientRect().left;
+  const offset = (titleLeft + titleWidth) - tableLeft;
+  
+  document.body.removeChild(span);
+  
+  table.style.margin = '0';
+  table.style.marginLeft = offset + 'px';
+  table.style.width = 'auto';
+  table.style.tableLayout = 'fixed';
+  
+  // NO. 열의 너비 고정
+  const noColumnWidth = 60; // NO. 열의 고정 너비
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const cell = rows[rowIndex].cells[0];
+    if (cell) {
+      cell.style.width = noColumnWidth + 'px';
+      cell.style.minWidth = noColumnWidth + 'px';
+    }
+  }
+  
+  // 나머지 열에 대해 자동 조정
+  for (let colIndex = 1; colIndex < rows[0].cells.length; colIndex++) {
+    let maxWidth = minWidth;
+    
+    // 해당 열의 모든 셀을 검사
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+      const cell = rows[rowIndex].cells[colIndex];
+      if (cell) {
+        // 임시 span 요소를 생성하여 실제 텍스트 너비 측정
+        const span = document.createElement('span');
+        span.style.visibility = 'hidden';
+        span.style.position = 'absolute';
+        span.style.whiteSpace = 'nowrap';
+        span.style.font = window.getComputedStyle(cell).font;
+        span.textContent = cell.textContent;
+        document.body.appendChild(span);
+        
+        const width = span.offsetWidth + padding;
+        maxWidth = Math.max(maxWidth, Math.min(width, maxWidth));
+        
+        document.body.removeChild(span);
+      }
+    }
+    
+    // 해당 열의 모든 셀에 너비 적용
+    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+      const cell = rows[rowIndex].cells[colIndex];
+      if (cell) {
+        cell.style.width = maxWidth + 'px';
+        cell.style.minWidth = maxWidth + 'px';
+      }
+    }
+  }
+}
+
+function resetColumnWidths() {
+  const table = document.getElementById('editableTable');
+  const rows = table.rows;
+  
+  // 모든 셀의 너비 초기화
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const cells = rows[rowIndex].cells;
+    for (let colIndex = 0; colIndex < cells.length; colIndex++) {
+      const cell = cells[colIndex];
+      cell.style.width = '';
+      cell.style.minWidth = '';
+    }
+  }
+  
+  // 테이블 레이아웃 초기화 및 중앙 정렬 복원
+  table.style.width = '100%';
+  table.style.tableLayout = 'auto';
+  table.style.margin = '0 auto';
+}
+
+function adjustRowHeights() {
+  const tbody = document.getElementById('tbody');
+  const rows = tbody.rows;
+  const availableHeight = window.innerHeight - document.querySelector('h2').offsetHeight - document.querySelector('.controls').offsetHeight - 40;
+  const rowHeight = Math.max(24, Math.floor(availableHeight / rows.length));
+  
+  for (let i = 0; i < rows.length; i++) {
+    rows[i].style.height = rowHeight + 'px';
+    Array.from(rows[i].cells).forEach(cell => {
+      cell.style.height = rowHeight + 'px';
+      cell.style.padding = '2px';
+      cell.style.lineHeight = '1.2';
+    });
+  }
+}
+
+// 창 크기가 변경될 때마다 행 높이 조정
+window.addEventListener('resize', adjustRowHeights);
+
+// 초기 로드 시 행 높이 조정
+window.addEventListener('load', adjustRowHeights);
+</script>
+
+</body>
+</html>

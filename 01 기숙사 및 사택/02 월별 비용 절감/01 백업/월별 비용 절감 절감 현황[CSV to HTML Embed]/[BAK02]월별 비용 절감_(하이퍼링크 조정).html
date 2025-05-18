@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>하이퍼링크 스타일 에디터</title>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a237e;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .file-input-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .file-input-wrapper {
+            display: inline-block;
+            position: relative;
+            margin: 10px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1a237e;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #0d47a1;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .hyperlink-list {
+            margin-bottom: 30px;
+        }
+
+        .hyperlink-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+        }
+
+        .hyperlink-item h3 {
+            color: #1a237e;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .hyperlink-item .remove-link {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 10px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .hyperlink-item .remove-link:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        .style-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .style-control {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .style-control label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .style-control input,
+        .style-control select {
+            padding: 4px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .style-preview {
+            margin-top: 8px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .buttons {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .button.primary {
+            background: #1a237e;
+            color: white;
+        }
+
+        .button.secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .add-link-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .add-link-button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .add-link-button:hover {
+            background: #218838;
+        }
+
+        .preview-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .preview-section h2 {
+            color: #1a237e;
+            margin-top: 0;
+        }
+
+        #preview-content {
+            padding: 20px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>하이퍼링크 스타일 에디터</h1>
+        
+        <div class="file-input-section">
+            <div class="file-input-wrapper">
+                <input type="file" id="html-input" accept=".html">
+                <label class="file-input-label" for="html-input">HTML 파일 선택</label>
+            </div>
+        </div>
+
+        <div class="add-link-section">
+            <button class="add-link-button" id="add-link">새 하이퍼링크 추가</button>
+        </div>
+
+        <div class="hyperlink-list" id="hyperlink-list">
+            <!-- 하이퍼링크 항목들이 여기에 동적으로 추가됩니다 -->
+        </div>
+
+        <div class="preview-section">
+            <h2>미리보기</h2>
+            <div id="preview-content"></div>
+        </div>
+
+        <div class="buttons">
+            <button class="button primary" id="apply-styles">스타일 적용</button>
+            <button class="button secondary" id="download-html">HTML 다운로드</button>
+        </div>
+    </div>
+
+    <script>
+        let originalHtml = '';
+        let modifiedHtml = '';
+        let hyperlinks = [];
+
+        // 하이퍼링크 항목 템플릿 생성 함수
+        function createHyperlinkItem(id) {
+            return `
+                <div class="hyperlink-item" data-id="${id}">
+                    <h3>
+                        하이퍼링크 #${id}
+                        <span class="remove-link" onclick="removeHyperlink(${id})">삭제</span>
+                    </h3>
+                    <div class="style-controls">
+                        <div class="style-control">
+                            <label>링크 텍스트</label>
+                            <input type="text" id="link-text-${id}" placeholder="링크에 표시될 텍스트">
+                        </div>
+                        <div class="style-control">
+                            <label>링크 URL</label>
+                            <input type="text" id="link-url-${id}" placeholder="https://...">
+                        </div>
+                        <div class="style-control">
+                            <label>색상</label>
+                            <input type="color" id="link-color-${id}" value="#1a237e">
+                        </div>
+                        <div class="style-control">
+                            <label>글자 크기</label>
+                            <select id="link-size-${id}">
+                                <option value="12px">12px</option>
+                                <option value="14px" selected>14px</option>
+                                <option value="16px">16px</option>
+                                <option value="18px">18px</option>
+                                <option value="20px">20px</option>
+                            </select>
+                        </div>
+                        <div class="style-control">
+                            <label>글자 스타일</label>
+                            <select id="link-style-${id}">
+                                <option value="normal">normal</option>
+                                <option value="bold">bold</option>
+                            </select>
+                        </div>
+                        <div class="style-control">
+                            <label>밑줄 스타일</label>
+                            <select id="link-decoration-${id}">
+                                <option value="none">none</option>
+                                <option value="underline" selected>underline</option>
+                                <option value="dotted">dotted</option>
+                                <option value="dashed">dashed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="style-preview">
+                        <a href="#" id="link-preview-${id}" class="custom-link">미리보기 텍스트</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 새 하이퍼링크 추가
+        function addHyperlink() {
+            const id = hyperlinks.length + 1;
+            hyperlinks.push({
+                id: id,
+                text: '',
+                url: '',
+                color: '#1a237e',
+                size: '14px',
+                style: 'normal',
+                decoration: 'underline'
+            });
+            
+            const list = document.getElementById('hyperlink-list');
+            list.insertAdjacentHTML('beforeend', createHyperlinkItem(id));
+            
+            // 이벤트 리스너 추가
+            addEventListeners(id);
+            updatePreview(id);
+        }
+
+        // 하이퍼링크 삭제
+        function removeHyperlink(id) {
+            const item = document.querySelector(`.hyperlink-item[data-id="${id}"]`);
+            if (item) {
+                item.remove();
+                hyperlinks = hyperlinks.filter(link => link.id !== id);
+            }
+        }
+
+        // 이벤트 리스너 추가
+        function addEventListeners(id) {
+            const controls = document.querySelectorAll(`#link-text-${id}, #link-url-${id}, #link-color-${id}, #link-size-${id}, #link-style-${id}, #link-decoration-${id}`);
+            controls.forEach(control => {
+                control.addEventListener('change', () => updatePreview(id));
+                control.addEventListener('input', () => updatePreview(id));
+            });
+        }
+
+        // 미리보기 업데이트
+        function updatePreview(id) {
+            const preview = document.getElementById(`link-preview-${id}`);
+            if (!preview) return;
+
+            const text = document.getElementById(`link-text-${id}`).value || '미리보기 텍스트';
+            const url = document.getElementById(`link-url-${id}`).value || '#';
+            const color = document.getElementById(`link-color-${id}`).value;
+            const size = document.getElementById(`link-size-${id}`).value;
+            const style = document.getElementById(`link-style-${id}`).value;
+            const decoration = document.getElementById(`link-decoration-${id}`).value;
+
+            preview.textContent = text;
+            preview.href = url;
+            preview.style.color = color;
+            preview.style.fontSize = size;
+            preview.style.fontWeight = style;
+            preview.style.textDecoration = decoration;
+
+            // 하이퍼링크 데이터 업데이트
+            const linkIndex = hyperlinks.findIndex(link => link.id === id);
+            if (linkIndex !== -1) {
+                hyperlinks[linkIndex] = {
+                    id,
+                    text,
+                    url,
+                    color,
+                    size,
+                    style,
+                    decoration
+                };
+            }
+        }
+
+        // 파일 입력 이벤트 리스너
+        document.getElementById('html-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                originalHtml = e.target.result;
+                modifiedHtml = originalHtml;
+                
+                // HTML에서 모든 하이퍼링크 추출 (하드코딩된 링크 포함)
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = originalHtml;
+                
+                // 정규식을 사용하여 하드코딩된 하이퍼링크 찾기
+                const hardcodedLinks = originalHtml.match(/href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/g) || [];
+                const hardcodedLinksData = hardcodedLinks.map(link => {
+                    const urlMatch = link.match(/href=["']([^"']+)["']/);
+                    const textMatch = link.match(/>([^<]+)<\/a>/);
+                    return {
+                        url: urlMatch ? urlMatch[1] : '',
+                        text: textMatch ? textMatch[1] : ''
+                    };
+                });
+
+                // 일반 하이퍼링크 찾기
+                const links = tempDiv.getElementsByTagName('a');
+                
+                // 기존 하이퍼링크 목록 초기화
+                hyperlinks = [];
+                document.getElementById('hyperlink-list').innerHTML = '';
+                
+                // 일반 하이퍼링크 추가
+                Array.from(links).forEach((link, index) => {
+                    addHyperlinkToList(link.textContent, link.href, index + 1);
+                });
+                
+                // 하드코딩된 하이퍼링크 추가
+                hardcodedLinksData.forEach((link, index) => {
+                    if (!hyperlinks.some(h => h.url === link.url && h.text === link.text)) {
+                        addHyperlinkToList(link.text, link.url, hyperlinks.length + 1);
+                    }
+                });
+                
+                updatePreview();
+            };
+            reader.readAsText(file);
+        });
+
+        // 하이퍼링크를 목록에 추가하는 함수
+        function addHyperlinkToList(text, url, id) {
+            hyperlinks.push({
+                id: id,
+                text: text,
+                url: url,
+                color: '#1a237e',
+                size: '14px',
+                style: 'normal',
+                decoration: 'underline'
+            });
+            
+            const list = document.getElementById('hyperlink-list');
+            list.insertAdjacentHTML('beforeend', createHyperlinkItem(id));
+            
+            // 입력 필드에 현재 값 설정
+            document.getElementById(`link-text-${id}`).value = text;
+            document.getElementById(`link-url-${id}`).value = url;
+            
+            // 이벤트 리스너 추가
+            addEventListeners(id);
+            updatePreview(id);
+        }
+
+        // RGB 색상을 HEX로 변환하는 함수
+        function rgbToHex(rgb) {
+            // rgb(r, g, b) 형식의 문자열을 파싱
+            const rgbValues = rgb.match(/\d+/g);
+            if (!rgbValues) return '#000000';
+            
+            // RGB 값을 HEX로 변환
+            const hex = rgbValues.map(x => {
+                const hex = parseInt(x).toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+            
+            return '#' + hex;
+        }
+
+        // 스타일 적용 함수
+        function applyStyles() {
+            if (!originalHtml) {
+                alert('먼저 HTML 파일을 선택해주세요.');
+                return;
+            }
+
+            let styleContent = '';
+            hyperlinks.forEach(link => {
+                if (link.text && link.url) {
+                    styleContent += `
+                        a[href="${link.url}"] {
+                            color: ${link.color} !important;
+                            font-size: ${link.size} !important;
+                            font-weight: ${link.style} !important;
+                            text-decoration: ${link.decoration} !important;
+                        }
+                    `;
+                }
+            });
+
+            // 기존 스타일 태그 찾기
+            const styleRegex = /<style id="hyperlink-custom-styles">[\s\S]*?<\/style>/;
+            const newStyleTag = `<style id="hyperlink-custom-styles">${styleContent}</style>`;
+
+            if (styleRegex.test(modifiedHtml)) {
+                // 기존 스타일 태그 교체
+                modifiedHtml = modifiedHtml.replace(styleRegex, newStyleTag);
+            } else {
+                // head 태그 안에 스타일 태그 추가
+                modifiedHtml = modifiedHtml.replace('</head>', `${newStyleTag}\n</head>`);
+            }
+
+            // 미리보기 업데이트
+            const previewContent = document.getElementById('preview-content');
+            previewContent.innerHTML = modifiedHtml;
+        }
+
+        // HTML 다운로드 함수
+        function downloadHtml() {
+            if (!modifiedHtml) {
+                alert('먼저 HTML 파일을 선택하고 스타일을 적용해주세요.');
+                return;
+            }
+
+            const blob = new Blob([modifiedHtml], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'modified_hyperlink_styles.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // 버튼 이벤트 리스너
+        document.getElementById('add-link').addEventListener('click', addHyperlink);
+        document.getElementById('apply-styles').addEventListener('click', applyStyles);
+        document.getElementById('download-html').addEventListener('click', downloadHtml);
+
+        // 초기 하이퍼링크 추가
+        addHyperlink();
+    </script>
+</body>
+</html> 
