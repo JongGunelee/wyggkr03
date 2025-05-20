@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>협의 내용 작성 시트</title>
+  <style>
+    html, body {
+      font-size: 18px;
+      font-family: '맑은 고딕', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    body.fullscreen-mode #controls {
+      display: none;
+    }
+    h2 {
+      margin: 10px 20px;
+      cursor: text;
+      font-size: 24px;
+      padding-left: 0;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 10px;
+      background: #eef8ff;
+      font-size: 14px;
+    }
+    .group {
+      background: #eaf4ff;
+      padding: 6px;
+      border-radius: 6px;
+      margin-right: 6px;
+      min-width: 120px;
+    }
+    .group-title {
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 3px;
+      color: #2c5282;
+    }
+    button, input[type="text"] {
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      border: 1px solid #999;
+      background: #f2f2f2;
+      border-radius: 4px;
+      margin: 2px;
+    }
+    .group:nth-child(1) { background: #f0e6ff; } /* 하이퍼링크 */
+    .group:nth-child(2) { background: #e6ffe6; } /* 행/열 조작 */
+    .group:nth-child(3) { background: #ffe6e6; } /* 병합 */
+    .group:nth-child(4) { background: #e6e6ff; } /* 정렬 */
+    .group:nth-child(5) { background: #fff2e6; } /* 파일 */
+    .group:nth-child(6) { background: #e6ffff; } /* 스타일 - 청록색 계열 */
+    .group:nth-child(7) { background: #fff0f5; } /* 숫자 입력 - 연한 분홍색 계열 */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: auto;
+      font-size: 18px;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+      resize: both;
+      overflow: hidden;
+      white-space: pre-wrap;
+    }
+    th {
+      background: #dceeff;
+      font-weight: bold;
+    }
+    th:first-child, td:first-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+    td[contenteditable], th[contenteditable] {
+      cursor: text;
+    }
+    .selected {
+      outline: 2px solid #4a90e2;
+    }
+    .fullscreen-mode {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      z-index: 9999;
+      padding: 20px 0;
+      overflow: auto;
+    }
+    .fullscreen-mode #editableTable {
+      max-width: 100%;
+      margin: 0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #editableTable {
+      margin-left: 20px;
+      margin-right: 20px;
+    }
+    .style-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 200px;
+    }
+    .style-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .style-panel .title::before {
+      content: "🎨";
+      margin-right: 8px;
+    }
+    .style-panel .style-group {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .style-panel .style-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .style-panel label {
+      font-size: 13px;
+      color: #495057;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .style-panel input[type="number"] {
+      width: 60px;
+      padding: 4px 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+    .style-panel input[type="color"] {
+      width: 40px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .style-panel input[type="checkbox"] {
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+    .style-panel .preset-sizes {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .style-panel .preset-sizes button {
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .style-panel .preset-sizes button:hover {
+      background: #dee2e6;
+    }
+    .style-panel .preset-colors {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    .style-panel .preset-colors button {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    tbody tr:nth-child(even) {
+      background-color: rgba(220, 220, 220, 0.2);
+    }
+    .tooltip {
+      position: absolute;
+      background: #333;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+    .group:hover .tooltip {
+      display: block;
+    }
+    .align-panel {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: #f0f0f0;
+      border: 1px solid #aaa;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: move;
+      user-select: none;
+    }
+    .align-panel .title {
+      margin-bottom: 10px;
+      font-weight: bold;
+      cursor: move;
+      padding: 5px;
+      background: #e0e0e0;
+      border-radius: 4px;
+    }
+    .align-panel button {
+      margin: 5px;
+      min-width: 80px;
+    }
+    .edit-mode-button {
+      position: fixed;
+      top: 5px;
+      left: 10px;
+      padding: 4px 8px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 10px;
+      z-index: 10000;
+      display: none;
+      transform: scale(0.85);
+    }
+    .fullscreen-mode .edit-mode-button {
+      display: block;
+    }
+    .fullscreen-mode h2 {
+      margin: 10px 20px;
+      padding-left: 0;
+    }
+    .mode-message {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 10001;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+    .number-panel {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      padding: 15px;
+      display: none;
+      z-index: 1000;
+      cursor: move;
+      user-select: none;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 250px;
+    }
+    .number-panel .title {
+      margin: -15px -15px 15px -15px;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: move;
+      background: #e9ecef;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 1px solid #dee2e6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .number-panel .title::before {
+      content: "🔢";
+      margin-right: 8px;
+    }
+    .number-panel .number-group {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .number-panel .number-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .number-panel label {
+      font-size: 13px;
+      color: #495057;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .number-panel select, .number-panel input {
+      width: 100%;
+      padding: 4px 8px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .number-panel .preset-buttons {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .number-panel .preset-buttons button {
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .number-panel .preset-buttons button:hover {
+      background: #dee2e6;
+    }
+    .number-panel .unit-group {
+      display: flex;
+      gap: 10px;
+    }
+    .number-panel .unit-group input {
+      flex: 1;
+    }
+    .number-panel .multi-input {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      display: none;
+    }
+    .number-panel .multi-input.active {
+      display: block;
+    }
+    .number-panel .cell-input {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      padding: 5px;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+    }
+    .number-panel .cell-input label {
+      margin: 0;
+      margin-right: 10px;
+      min-width: 60px;
+    }
+    .number-panel .cell-input input {
+      flex: 1;
+      margin: 0;
+    }
+    .number-panel .quick-input {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .number-panel .quick-input button {
+      flex: 1;
+      padding: 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="controls" class="controls">
+  <div class="group">
+    <div class="group-title">하이퍼링크</div>
+    <input type="text" id="searchInput" placeholder="검색어(정규식)">
+    <input type="text" id="linkInput" placeholder="URL">
+    <button onclick="applyHyperlinks()">적용</button>
+    <button onclick="clearHyperlinks()">초기화</button>
+    <div class="tooltip">검색어와 URL을 입력하여 선택한 텍스트에 하이퍼링크를 적용합니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">행/열 조작</div>
+    <button onclick="addRow()">입력 행 추가</button>
+    <button onclick="deleteRow()">입력 행 삭제</button>
+    <button onclick="addHeader()">제목 추가</button>
+    <button onclick="deleteHeader()">제목 삭제</button>
+    <button onclick="addColumn()">열 추가</button>
+    <button onclick="deleteColumn()">열 삭제</button>
+    <div class="tooltip">테이블의 행과 열을 추가하거나 삭제할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">병합</div>
+    <button onclick="toggleMergeMode()">병합 모드</button>
+    <button onclick="mergeCells()">병합</button>
+    <button onclick="cancelMergeMode()">취소</button>
+    <button onclick="undoMerge()">되돌리기</button>
+    <div class="tooltip">셀을 선택하여 병합하거나 병합을 취소할 수 있습니다. (되돌리기 최대 10회 가능)</div>
+  </div>
+  <div class="group">
+    <div class="group-title">정렬</div>
+    <button onclick="toggleAlignMode()">정렬 모드</button>
+    <button onclick="applyAlignment()">적용</button>
+    <button onclick="cancelAlignMode()">취소</button>
+    <div class="tooltip">셀을 선택하여 정렬 방식을 적용할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">파일</div>
+    <button onclick="downloadHTML()">HTML 다운로드</button>
+    <button onclick="toggleFullscreen()">전체화면</button>
+    <div class="tooltip">HTML 파일을 다운로드하거나 전체화면 모드를 전환할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">스타일</div>
+    <button onclick="toggleStyleMode()">스타일 모드</button>
+    <button onclick="applyStyle()">적용</button>
+    <button onclick="cancelStyleMode()">취소</button>
+    <div class="tooltip">셀을 선택하여 글자 크기, 굵기, 색상을 한 번에 적용할 수 있습니다.</div>
+  </div>
+  <div class="group">
+    <div class="group-title">숫자 입력</div>
+    <button onclick="toggleNumberMode()">숫자 입력 모드</button>
+    <button onclick="applyNumberFormat()">적용</button>
+    <button onclick="cancelNumberMode()">취소</button>
+    <div class="tooltip">셀을 선택하여 숫자 형식과 단위를 설정할 수 있습니다.</div>
+  </div>
+</div>
+
+<h2 contenteditable="true">협의 안건 목록</h2>
+
+<table id="editableTable">
+  <thead>
+    <tr>
+      <th>NO.</th>
+      <th contenteditable="true">항목</th>
+      <th contenteditable="true">연관성</th>
+      <th contenteditable="true">예산</th>
+      <th contenteditable="true">계획</th>
+      <th contenteditable="true">비용(예상)</th>
+      <th contenteditable="true">진행</th>
+      <th contenteditable="true">이월</th>
+      <th contenteditable="true">비고</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<div class="style-panel" id="stylePanel">
+  <div class="title">스타일 설정</div>
+  <div class="style-group">
+    <label>글자 크기</label>
+    <input type="number" id="fontSize" min="10" max="40" value="18"> px
+    <div class="preset-sizes">
+      <button onclick="setFontSize(14)">작게</button>
+      <button onclick="setFontSize(18)">보통</button>
+      <button onclick="setFontSize(24)">크게</button>
+      <button onclick="setFontSize(32)">매우 크게</button>
+    </div>
+  </div>
+  <div class="style-group">
+    <label>글자 굵기</label>
+    <input type="checkbox" id="fontBold"> 굵게
+  </div>
+  <div class="style-group">
+    <label>글자 색상</label>
+    <input type="color" id="fontColor">
+    <div class="preset-colors">
+      <button style="background: #000000" onclick="setFontColor('#000000')"></button>
+      <button style="background: #ff0000" onclick="setFontColor('#ff0000')"></button>
+      <button style="background: #0000ff" onclick="setFontColor('#0000ff')"></button>
+      <button style="background: #008000" onclick="setFontColor('#008000')"></button>
+    </div>
+  </div>
+</div>
+
+<div class="align-panel" id="alignPanel">
+  <div class="title">정렬 방향 선택</div>
+  <button onclick="applyAlignment('left')">좌측 정렬</button>
+  <button onclick="applyAlignment('center')">중앙 정렬</button>
+  <button onclick="applyAlignment('right')">우측 정렬</button>
+  <button onclick="cancelAlignMode()" style="margin-top: 10px;">취소</button>
+</div>
+
+<div class="edit-mode-button" onclick="toggleFullscreen()">편집 모드로 전환</div>
+<div id="modeMessage" class="mode-message"></div>
+
+<div class="number-panel" id="numberPanel">
+  <div class="title">숫자 입력 설정</div>
+  <div class="number-group">
+    <label>입력 형식</label>
+    <select id="numberFormat">
+      <option value="number">일반 숫자</option>
+      <option value="thousand">천 단위 구분</option>
+      <option value="currency">통화 형식</option>
+      <option value="percent">백분율</option>
+      <option value="decimal">소수점</option>
+    </select>
+  </div>
+  <div class="number-group">
+    <label>단위 변환</label>
+    <select id="unitType">
+      <option value="none">단위 없음</option>
+      <option value="accounting">회계 단위</option>
+      <option value="currency">금액 단위</option>
+      <option value="custom">사용자 정의</option>
+    </select>
+    <div class="unit-group">
+      <input type="text" id="unitPrefix" placeholder="접두어">
+      <input type="text" id="unitSuffix" placeholder="접미어">
+    </div>
+  </div>
+  <div class="number-group">
+    <label>범위 설정</label>
+    <div class="unit-group">
+      <input type="number" id="minValue" placeholder="최소값">
+      <input type="number" id="maxValue" placeholder="최대값">
+    </div>
+  </div>
+  <div class="number-group">
+    <label>자주 사용하는 단위</label>
+    <div class="preset-buttons">
+      <button onclick="setUnit('원')">원</button>
+      <button onclick="setUnit('천원')">천원</button>
+      <button onclick="setUnit('만원')">만원</button>
+      <button onclick="setUnit('백만원')">백만원</button>
+      <button onclick="setUnit('억원')">억원</button>
+      <button onclick="setUnit('개')">개</button>
+      <button onclick="setUnit('SET')">SET</button>
+      <button onclick="setUnit('BOX')">BOX</button>
+    </div>
+  </div>
+  <div class="number-group">
+    <label>다중 셀 입력</label>
+    <div class="multi-input" id="multiInput">
+      <div id="cellInputs"></div>
+      <div class="quick-input">
+        <button onclick="applySameValue()">모두 같은 값</button>
+        <button onclick="applySequence()">순차 증가</button>
+        <button onclick="applyRandom()">랜덤 값</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let undoStack = [];
+let mergeMode = false;
+let isSelecting = false;
+let selectedCell = null;
+let alignMode = false;
+let styleMode = false;
+let numberMode = false;
+
+function saveState() {
+  undoStack.push(document.getElementById('editableTable').innerHTML);
+  if (undoStack.length > 10) undoStack.shift();
+}
+
+function undoMerge() {
+  if (!undoStack.length) return alert('되돌릴 작업이 없습니다.');
+  document.getElementById('editableTable').innerHTML = undoStack.pop();
+  initSelectable();
+}
+
+function addRow() {
+  saveState();
+  const tbody = document.getElementById('tbody');
+  const rowCount = tbody.rows.length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${rowCount}</td>` + '<td contenteditable="true"></td>'.repeat(8);
+  tbody.appendChild(tr);
+  initSelectable();
+}
+
+function deleteRow() {
+  saveState();
+  const tbody = document.getElementById('tbody');
+  if (tbody.rows.length > 1) tbody.deleteRow(-1);
+}
+
+function addHeader() {
+  saveState();
+  const tr = document.createElement('tr');
+  for (let i = 0; i < 9; i++) {
+    const th = document.createElement('th');
+    th.contentEditable = 'true';
+    th.style.background = '#dceeff';
+    tr.appendChild(th);
+  }
+  document.querySelector('#editableTable thead').appendChild(tr);
+}
+
+function deleteHeader() {
+  saveState();
+  const thead = document.querySelector('#editableTable thead');
+  if (thead.rows.length > 1) thead.deleteRow(-1);
+}
+
+function addColumn() {
+  saveState();
+  document.querySelectorAll('#editableTable tr').forEach(row => {
+    const cell = row.insertCell(-1);
+    cell.contentEditable = 'true';
+    if (row.parentElement.tagName === 'THEAD') {
+      cell.style.background = '#dceeff';
+    }
+  });
+  initSelectable();
+}
+
+function deleteColumn() {
+  saveState();
+  document.querySelectorAll('#editableTable tr').forEach(row => {
+    if (row.cells.length > 1) row.deleteCell(-1);
+  });
+  initSelectable();
+}
+
+function showModeMessage(message) {
+  const messageBox = document.getElementById('modeMessage');
+  messageBox.textContent = message;
+  messageBox.style.display = 'block';
+  setTimeout(() => {
+    messageBox.style.display = 'none';
+  }, 3000);
+}
+
+function toggleMergeMode() {
+  mergeMode = true;
+  alignMode = false;
+  styleMode = false;
+  clearSelection();
+  document.getElementById('alignPanel').style.display = 'none';
+  document.getElementById('stylePanel').style.display = 'none';
+  showModeMessage('병합 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+}
+
+function cancelMergeMode() {
+  mergeMode = false;
+  clearSelection();
+}
+
+function mergeCells() {
+  if (!mergeMode) return alert('병합 모드를 활성화하세요.');
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length < 2) return alert('병합할 셀을 선택하세요.');
+  saveState();
+  const table = document.getElementById('editableTable');
+  const rows = selected.map(c => c.parentElement.rowIndex);
+  const cols = selected.map(c => c.cellIndex);
+  const r1 = Math.min(...rows), r2 = Math.max(...rows);
+  const c1 = Math.min(...cols), c2 = Math.max(...cols);
+  const master = table.rows[r1].cells[c1];
+  let combined = master.innerHTML;
+  for (let i = r1; i <= r2; i++) {
+    for (let j = c1; j <= c2; j++) {
+      if (i === r1 && j === c1) continue;
+      combined += '<br>' + table.rows[i].cells[j]?.innerHTML;
+    }
+  }
+  master.innerHTML = combined;
+  master.rowSpan = r2 - r1 + 1;
+  master.colSpan = c2 - c1 + 1;
+  for (let i = r2; i >= r1; i--) {
+    for (let j = c2; j >= c1; j--) {
+      if (i === r1 && j === c1) continue;
+      table.rows[i].deleteCell(j);
+    }
+  }
+  mergeMode = false;
+  clearSelection();
+}
+
+function toggleAlignMode() {
+  alignMode = true;
+  mergeMode = false;
+  styleMode = false;
+  clearSelection();
+  const alignPanel = document.getElementById('alignPanel');
+  alignPanel.style.display = 'block';
+  document.getElementById('stylePanel').style.display = 'none';
+  showModeMessage('정렬 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+  
+  // 드래그 기능 초기화
+  initAlignPanelDrag();
+}
+
+function initAlignPanelDrag() {
+  const alignPanel = document.getElementById('alignPanel');
+  const title = alignPanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      setTranslate(currentX, currentY, alignPanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function cancelAlignMode() {
+  alignMode = false;
+  clearSelection();
+  const alignPanel = document.getElementById('alignPanel');
+  alignPanel.style.display = 'none';
+  alignPanel.style.transform = 'translate(0, 0)';
+}
+
+function applyAlignment(align) {
+  if (!alignMode) return;
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) {
+    alert('정렬할 셀을 선택하세요.');
+    return;
+  }
+  
+  selected.forEach(cell => cell.style.textAlign = align);
+  alignMode = false;
+  clearSelection();
+  document.getElementById('alignPanel').style.display = 'none';
+}
+
+function toggleStyleMode() {
+  styleMode = true;
+  mergeMode = false;
+  alignMode = false;
+  clearSelection();
+  const stylePanel = document.getElementById('stylePanel');
+  stylePanel.style.display = 'block';
+  document.getElementById('alignPanel').style.display = 'none';
+  showModeMessage('스타일 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+  
+  // 드래그 기능 초기화
+  initStylePanelDrag();
+}
+
+function initStylePanelDrag() {
+  const stylePanel = document.getElementById('stylePanel');
+  const title = stylePanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+
+      xOffset = currentX;
+      yOffset = currentY;
+
+      setTranslate(currentX, currentY, stylePanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function cancelStyleMode() {
+  styleMode = false;
+  clearSelection();
+  const stylePanel = document.getElementById('stylePanel');
+  stylePanel.style.display = 'none';
+  stylePanel.style.transform = 'translate(0, 0)';
+}
+
+function applyStyle() {
+  if (!styleMode) return alert('스타일 모드를 활성화하세요.');
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) return alert('스타일을 적용할 셀을 선택하세요.');
+  
+  const fontSize = document.getElementById('fontSize').value;
+  const isBold = document.getElementById('fontBold').checked;
+  const fontColor = document.getElementById('fontColor').value;
+  
+  selected.forEach(cell => {
+    cell.style.fontSize = fontSize + 'px';
+    cell.style.fontWeight = isBold ? 'bold' : 'normal';
+    cell.style.color = fontColor;
+  });
+  
+  styleMode = false;
+  clearSelection();
+  document.getElementById('stylePanel').style.display = 'none';
+}
+
+function initSelectable() {
+  clearSelection();
+  document.querySelectorAll('#editableTable td, #editableTable th').forEach(cell => {
+    cell.onmousedown = e => {
+      if (!mergeMode && !alignMode && !styleMode && !numberMode) return;
+      e.preventDefault();
+      if (!isSelecting) {
+        saveState();
+        isSelecting = true;
+      }
+      cell.classList.add('selected');
+      if (numberMode) {
+        updateMultiInput();
+      }
+    };
+    cell.onmouseover = e => {
+      if ((mergeMode || alignMode || styleMode || numberMode) && isSelecting) {
+        e.target.classList.add('selected');
+        if (numberMode) {
+          updateMultiInput();
+        }
+      }
+    };
+    cell.onmouseup = () => {
+      isSelecting = false;
+    };
+  });
+  document.body.onmouseup = () => (isSelecting = false);
+}
+
+function clearSelection() {
+  document.querySelectorAll('.selected').forEach(cell => cell.classList.remove('selected'));
+}
+
+function applyHyperlinks() {
+  const pattern = document.getElementById('searchInput').value;
+  const url = document.getElementById('linkInput').value;
+  if (!pattern || !url) return alert('검색어와 URL 모두 입력하세요.');
+  let regex;
+  try {
+    regex = new RegExp(pattern, 'g');
+  } catch {
+    alert('유효하지 않은 정규식입니다.');
+    return;
+  }
+  document.querySelectorAll('#editableTable tbody td').forEach(td => {
+    td.innerHTML = td.innerHTML.replace(regex, match => `<a href="${url}" target="_blank" contenteditable="false">${match}</a>`);
+  });
+}
+
+function clearHyperlinks() {
+  document.querySelectorAll('#editableTable tbody td a').forEach(a => {
+    const text = a.textContent;
+    a.replaceWith(text);
+  });
+}
+
+async function downloadHTML() {
+  try {
+    // 실제 입력된 행만 필터링
+    const tbody = document.getElementById('tbody');
+    const rows = Array.from(tbody.rows);
+    const nonEmptyRows = rows.filter(row => {
+      // 첫 번째 셀(NO.)을 제외한 모든 셀을 확인
+      return Array.from(row.cells).slice(1).some(cell => cell.textContent.trim() !== '');
+    });
+
+    // 테이블 복제 및 빈 행 제거
+    const tableClone = document.getElementById('editableTable').cloneNode(true);
+    const tbodyClone = tableClone.querySelector('tbody');
+    tbodyClone.innerHTML = ''; // 기존 행 모두 제거
+    
+    // 실제 입력된 행만 추가
+    nonEmptyRows.forEach(row => {
+      tbodyClone.appendChild(row.cloneNode(true));
+    });
+
+    // 행 번호 재정렬
+    Array.from(tbodyClone.rows).forEach((row, index) => {
+      row.cells[0].textContent = (index + 1).toString();
+    });
+
+    // HTML 생성
+    const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    
+    // 원본 테이블을 수정된 테이블로 교체
+    const originalTable = tempDiv.querySelector('#editableTable');
+    originalTable.parentNode.replaceChild(tableClone, originalTable);
+    
+    const finalHtml = '<!DOCTYPE html>' + tempDiv.innerHTML;
+    const blob = new Blob(['﻿' + finalHtml], { type: 'text/html' });
+    
+    // 현재 날짜를 YYMMDD 형식으로 가져오기
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2);
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const dateStr = `${year}${month}${day}`;
+    
+    // 파일명 생성
+    const defaultFileName = `협의_안건_목록_${dateStr}.html`;
+
+    // 파일 저장 다이얼로그 표시
+    const handle = await window.showSaveFilePicker({
+      suggestedName: defaultFileName,
+      types: [{
+        description: 'HTML 파일',
+        accept: {'text/html': ['.html']},
+      }],
+    });
+
+    // 파일 저장
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+
+    alert('파일이 성공적으로 저장되었습니다.');
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('파일 저장 중 오류가 발생했습니다:', err);
+      alert('파일 저장 중 오류가 발생했습니다.');
+    }
+  }
+}
+
+function toggleFullscreen() {
+  document.body.classList.toggle('fullscreen-mode');
+}
+
+function setFontSize(size) {
+  document.getElementById('fontSize').value = size;
+  if (selectedCell && styleMode) {
+    selectedCell.style.fontSize = size + 'px';
+  }
+}
+
+function setFontColor(color) {
+  document.getElementById('fontColor').value = color;
+  if (selectedCell && styleMode) {
+    selectedCell.style.color = color;
+  }
+}
+
+function toggleNumberMode() {
+  numberMode = true;
+  mergeMode = false;
+  alignMode = false;
+  styleMode = false;
+  clearSelection();
+  const numberPanel = document.getElementById('numberPanel');
+  numberPanel.style.display = 'block';
+  document.getElementById('alignPanel').style.display = 'none';
+  document.getElementById('stylePanel').style.display = 'none';
+  showModeMessage('숫자 입력 모드 활성화\n취소 버튼을 누를 때까지 계속해서 셀을 선택할 수 있습니다.');
+  initNumberPanelDrag();
+}
+
+function cancelNumberMode() {
+  numberMode = false;
+  clearSelection();
+  const numberPanel = document.getElementById('numberPanel');
+  numberPanel.style.display = 'none';
+  numberPanel.style.transform = 'translate(0, 0)';
+}
+
+function initNumberPanelDrag() {
+  const numberPanel = document.getElementById('numberPanel');
+  const title = numberPanel.querySelector('.title');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+
+  title.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+
+  function dragStart(e) {
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    if (e.target === title) {
+      isDragging = true;
+    }
+  }
+
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      xOffset = currentX;
+      yOffset = currentY;
+      setTranslate(currentX, currentY, numberPanel);
+    }
+  }
+
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+  }
+}
+
+function setUnit(unit) {
+  document.getElementById('unitSuffix').value = unit;
+}
+
+function updateMultiInput() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  const multiInput = document.getElementById('multiInput');
+  const cellInputs = document.getElementById('cellInputs');
+  
+  if (selected.length > 1) {
+    multiInput.classList.add('active');
+    cellInputs.innerHTML = '';
+    
+    selected.forEach((cell, index) => {
+      const cellInput = document.createElement('div');
+      cellInput.className = 'cell-input';
+      cellInput.innerHTML = `
+        <label>셀 ${index + 1}</label>
+        <input type="number" 
+               data-cell-index="${index}" 
+               value="${cell.textContent || ''}" 
+               onchange="updateCellValue(this)">
+      `;
+      cellInputs.appendChild(cellInput);
+    });
+  } else {
+    multiInput.classList.remove('active');
+  }
+}
+
+function applyNumberFormat() {
+  if (!numberMode) return alert('숫자 입력 모드를 활성화하세요.');
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length === 0) return alert('숫자 형식을 적용할 셀을 선택하세요.');
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  const minValue = document.getElementById('minValue').value;
+  const maxValue = document.getElementById('maxValue').value;
+  
+  selected.forEach(cell => {
+    // 현재 셀의 값을 가져옴
+    let currentValue = cell.textContent.trim();
+    
+    // 숫자가 아닌 문자 제거 (단위 등)
+    currentValue = currentValue.replace(/[^0-9.-]/g, '');
+    
+    // 숫자로 변환
+    let numValue = parseFloat(currentValue);
+    if (isNaN(numValue)) {
+      numValue = 0;
+    }
+    
+    // 범위 체크
+    if (minValue && numValue < parseFloat(minValue)) {
+      numValue = parseFloat(minValue);
+    }
+    if (maxValue && numValue > parseFloat(maxValue)) {
+      numValue = parseFloat(maxValue);
+    }
+    
+    // 형식 적용
+    cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+    
+    // 데이터 속성 저장
+    cell.setAttribute('data-number-format', format);
+    cell.setAttribute('data-unit-type', unitType);
+    cell.setAttribute('data-unit-prefix', prefix);
+    cell.setAttribute('data-unit-suffix', suffix);
+    cell.setAttribute('data-min-value', minValue);
+    cell.setAttribute('data-max-value', maxValue);
+  });
+  
+  numberMode = false;
+  clearSelection();
+  document.getElementById('numberPanel').style.display = 'none';
+}
+
+function formatNumber(value, format, unitType, prefix, suffix) {
+  if (!value && value !== 0) return '';
+  
+  let num = parseFloat(value);
+  if (isNaN(num)) return value;
+
+  let formattedNum;
+  switch (format) {
+    case 'thousand':
+      formattedNum = num.toLocaleString('ko-KR');
+      break;
+    case 'currency':
+      formattedNum = num.toLocaleString('ko-KR', {
+        style: 'currency',
+        currency: 'KRW',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+      break;
+    case 'percent':
+      formattedNum = (num * 100).toLocaleString('ko-KR') + '%';
+      break;
+    case 'decimal':
+      formattedNum = num.toLocaleString('ko-KR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      break;
+    default:
+      formattedNum = num.toLocaleString('ko-KR');
+  }
+
+  // 단위 타입에 따른 추가 포맷팅
+  if (unitType === 'accounting') {
+    if (suffix) {
+      formattedNum = formattedNum.replace(/[^0-9,]/g, '') + suffix;
+    }
+  } else if (unitType === 'currency') {
+    if (prefix) {
+      formattedNum = prefix + formattedNum.replace(/[^0-9,]/g, '');
+    }
+    if (suffix) {
+      formattedNum = formattedNum + suffix;
+    }
+  }
+
+  return formattedNum;
+}
+
+// 숫자 입력 필드에 이벤트 리스너 추가
+document.getElementById('numberFormat').addEventListener('change', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = this.value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+      }
+    });
+  }
+});
+
+document.getElementById('unitType').addEventListener('change', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = this.value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+      }
+    });
+  }
+});
+
+document.getElementById('unitPrefix').addEventListener('input', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = this.value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+      }
+    });
+  }
+});
+
+document.getElementById('unitSuffix').addEventListener('input', function() {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  if (selected.length > 0) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = this.value;
+    
+    selected.forEach(cell => {
+      let currentValue = cell.textContent.trim().replace(/[^0-9.-]/g, '');
+      let numValue = parseFloat(currentValue);
+      if (!isNaN(numValue)) {
+        cell.textContent = formatNumber(numValue, format, unitType, prefix, suffix);
+      }
+    });
+  }
+});
+
+function updateCellValue(input) {
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  const index = parseInt(input.dataset.cellIndex);
+  if (selected[index]) {
+    const format = document.getElementById('numberFormat').value;
+    const unitType = document.getElementById('unitType').value;
+    const prefix = document.getElementById('unitPrefix').value;
+    const suffix = document.getElementById('unitSuffix').value;
+    
+    selected[index].textContent = formatNumber(input.value, format, unitType, prefix, suffix);
+  }
+}
+
+function applySameValue() {
+  const value = prompt('모든 셀에 적용할 값을 입력하세요:');
+  if (value === null) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach(cell => {
+    cell.textContent = formatNumber(value, format, unitType, prefix, suffix);
+  });
+  updateMultiInput();
+}
+
+function applySequence() {
+  const start = parseInt(prompt('시작 값을 입력하세요:'));
+  if (isNaN(start)) return;
+  
+  const step = parseInt(prompt('증가 값을 입력하세요:'));
+  if (isNaN(step)) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach((cell, index) => {
+    const value = start + (index * step);
+    cell.textContent = formatNumber(value, format, unitType, prefix, suffix);
+  });
+  updateMultiInput();
+}
+
+function applyRandom() {
+  const min = parseInt(prompt('최소 값을 입력하세요:'));
+  if (isNaN(min)) return;
+  
+  const max = parseInt(prompt('최대 값을 입력하세요:'));
+  if (isNaN(max)) return;
+  
+  const format = document.getElementById('numberFormat').value;
+  const unitType = document.getElementById('unitType').value;
+  const prefix = document.getElementById('unitPrefix').value;
+  const suffix = document.getElementById('unitSuffix').value;
+  
+  const selected = Array.from(document.querySelectorAll('.selected'));
+  selected.forEach(cell => {
+    const value = Math.floor(Math.random() * (max - min + 1)) + min;
+    cell.textContent = formatNumber(value, format, unitType, prefix, suffix);
+  });
+  updateMultiInput();
+}
+
+for (let i = 0; i < 10; i++) addRow();
+initSelectable();  // ✅ 셀 선택 이벤트 활성화를 위한 호출 추가
+</script>
+
+</body>
+</html>
