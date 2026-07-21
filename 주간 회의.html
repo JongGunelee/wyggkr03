@@ -7,6 +7,7 @@
     <title>YYYY년 MM월 W주차 주간 회의 안건</title>
     <meta name="template-type" content="weekly-meeting-merged">
     <meta name="editable-title" content="YYYY년 MM월 W주차 주간 회의 안건">
+    <link rel="icon" href="data:,">
     <!-- Inlined Libraries for Standalone Offline Support -->
     <style id="inlined-flatpickr-css">
 .flatpickr-calendar{background:transparent;opacity:0;display:none;text-align:center;visibility:hidden;padding:0;-webkit-animation:none;animation:none;direction:ltr;border:0;font-size:14px;line-height:24px;border-radius:5px;position:absolute;width:307.875px;-webkit-box-sizing:border-box;box-sizing:border-box;-ms-touch-action:manipulation;touch-action:manipulation;background:#fff;-webkit-box-shadow:1px 0 0 #e6e6e6,-1px 0 0 #e6e6e6,0 1px 0 #e6e6e6,0 -1px 0 #e6e6e6,0 3px 13px rgba(0,0,0,0.08);box-shadow:1px 0 0 #e6e6e6,-1px 0 0 #e6e6e6,0 1px 0 #e6e6e6,0 -1px 0 #e6e6e6,0 3px 13px rgba(0,0,0,0.08)}.flatpickr-calendar.open,.flatpickr-calendar.inline{opacity:1;max-height:640px;visibility:visible}.flatpickr-calendar.open{display:inline-block;z-index:99999}.flatpickr-calendar.animate.open{-webkit-animation:fpFadeInDown 300ms cubic-bezier(.23,1,.32,1);animation:fpFadeInDown 300ms cubic-bezier(.23,1,.32,1)}.flatpickr-calendar.inline{display:block;position:relative;top:2px}.flatpickr-calendar.static{position:absolute;top:calc(100% + 2px)}.flatpickr-calendar.static.open{z-index:999;display:block}.flatpickr-calendar.multiMonth .flatpickr-days .dayContainer:nth-child(n+1) .flatpickr-day.inRange:nth-child(7n+7){-webkit-box-shadow:none !important;box-shadow:none !important}.flatpickr-calendar.multiMonth .flatpickr-days .dayContainer:nth-child(n+2) .flatpickr-day.inRange:nth-child(7n+1){-webkit-box-shadow:-2px 0 0 #e6e6e6,5px 0 0 #e6e6e6;box-shadow:-2px 0 0 #e6e6e6,5px 0 0 #e6e6e6}.flatpickr-calendar .hasWeeks .dayContainer,.flatpickr-calendar .hasTime .dayContainer{border-bottom:0;border-bottom-right-radius:0;border-bottom-left-radius:0}.flatpickr-calendar .hasWeeks .dayContainer{border-left:0}.flatpickr-calendar.hasTime .flatpickr-time{height:40px;border-top:1px solid #e6e6e6}.flatpickr-calendar.noCalendar.hasTime .flatpickr-time{height:auto}.flatpickr-calendar:before,.flatpickr-calendar:after{position:absolute;display:block;pointer-events:none;border:solid transparent;content:'';height:0;width:0;left:22px}.flatpickr-calendar.rightMost:before,.flatpickr-calendar.arrowRight:before,.flatpickr-calendar.rightMost:after,.flatpickr-calendar.arrowRight:after{left:auto;right:22px}.flatpickr-calendar.arrowCenter:before,.flatpickr-calendar.arrowCenter:after{left:50%;right:50%}.flatpickr-calendar:before{border-width:5px;margin:0 -5px}.flatpickr-calendar:after{border-width:4px;margin:0 -4px}.flatpickr-calendar.arrowTop:before,.flatpickr-calendar.arrowTop:after{bottom:100%}.flatpickr-calendar.arrowTop:before{border-bottom-color:#e6e6e6}.flatpickr-calendar.arrowTop:after{border-bottom-color:#fff}.flatpickr-calendar.arrowBottom:before,.flatpickr-calendar.arrowBottom:after{top:100%}.flatpickr-calendar.arrowBottom:before{border-top-color:#e6e6e6}.flatpickr-calendar.arrowBottom:after{border-top-color:#fff}.flatpickr-calendar:focus{outline:0}.flatpickr-wrapper{position:relative;display:inline-block}.flatpickr-months{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex}.flatpickr-months .flatpickr-month{background:transparent;color:rgba(0,0,0,0.9);fill:rgba(0,0,0,0.9);height
@@ -2851,6 +2852,13 @@
             justify-content: flex-end;
         }
 
+        .focused-editor-exit-notice {
+            margin-right: auto;
+            color: #526273;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
         #focusedEditorTitle {
             font-weight: 800;
             color: #26384d;
@@ -3604,6 +3612,289 @@
             z-index: 32005 !important;
         }
         /* --- END: 확대 편집 모드 내 메뉴 버튼 활성화 CSS --- */
+
+        /* --- START: 주간 컬럼 셔터 레이아웃 (단일 HTML 자급형) --- */
+        #content.container {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            column-gap: 20px;
+            transition: grid-template-columns 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        column-gap 320ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #content[data-column-layout="last-only"] {
+            grid-template-columns: minmax(0, 1fr) minmax(0, 0fr);
+            column-gap: 0;
+        }
+
+        #content[data-column-layout="this-only"] {
+            grid-template-columns: minmax(0, 0fr) minmax(0, 1fr);
+            column-gap: 0;
+        }
+
+        #content[data-column-layout="none"] {
+            grid-template-columns: minmax(0, 1fr);
+            column-gap: 0;
+        }
+
+        #content > .column {
+            width: auto;
+            opacity: 1;
+            clip-path: inset(0 0 0 0 round 6px);
+            transition: opacity 220ms ease,
+                        clip-path 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        padding-inline 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        border-inline-width 320ms cubic-bezier(0.22, 1, 0.36, 1),
+                        visibility 0s linear 0s;
+        }
+
+        #content > .column[data-shuttered="true"] {
+            min-width: 0;
+            padding-inline: 0;
+            border-inline-width: 0;
+            opacity: 0;
+            overflow: hidden;
+            pointer-events: none;
+            visibility: hidden;
+            transition-delay: 0s, 0s, 0s, 0s, 320ms;
+        }
+
+        #content > .column[data-column-type="last-week"][data-shuttered="true"] {
+            clip-path: inset(0 100% 0 0 round 6px);
+        }
+
+        #content > .column[data-column-type="this-week"][data-shuttered="true"] {
+            clip-path: inset(0 0 0 100% round 6px);
+        }
+
+        #content[data-column-layout="none"] > .column {
+            display: none;
+        }
+
+        .column-shutter-controls {
+            position: fixed;
+            inset: 0;
+            z-index: 20020;
+            pointer-events: none;
+        }
+
+        .column-shutter-toggle {
+            position: absolute;
+            top: 50%;
+            width: 46px;
+            min-height: 86px;
+            padding: 9px 5px;
+            border: 1px solid #9fb3ad;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.96);
+            color: #145c50;
+            box-shadow: 0 5px 18px rgba(17, 61, 53, 0.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font: inherit;
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.1;
+            cursor: pointer;
+            pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transform: translateY(-50%);
+            transition: background-color 180ms ease, color 180ms ease,
+                        border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .column-shutter-toggle:hover {
+            background: #e4f3ef;
+            border-color: #368a7a;
+            box-shadow: 0 7px 22px rgba(17, 61, 53, 0.25);
+        }
+
+        .column-shutter-toggle:focus-visible {
+            outline: 3px solid rgba(0, 121, 107, 0.35);
+            outline-offset: 3px;
+        }
+
+        .column-shutter-toggle[data-open="false"] {
+            background: #075e54;
+            color: #fff;
+            border-color: #075e54;
+        }
+
+        .column-shutter-toggle--last {
+            left: max(7px, env(safe-area-inset-left));
+        }
+
+        .column-shutter-toggle--this {
+            right: max(7px, env(safe-area-inset-right));
+        }
+
+        .column-shutter-icon {
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 0.8;
+        }
+
+        .column-shutter-status {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        #columnShutterEmptyState {
+            display: none;
+            grid-column: 1 / -1;
+            width: min(100%, 680px);
+            min-height: 260px;
+            margin: 0 auto;
+            padding: 34px 22px;
+            box-sizing: border-box;
+            border: 1px dashed #8dafaa;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #f8fbfa, #eef7f5);
+            color: #315b55;
+            text-align: center;
+            place-content: center;
+            gap: 14px;
+        }
+
+        #content[data-column-layout="none"] > #columnShutterEmptyState:not([hidden]) {
+            display: grid;
+        }
+
+        #columnShutterEmptyState p {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .column-shutter-restore-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .column-shutter-restore-actions button {
+            min-height: 42px;
+            padding: 8px 14px;
+            border: 1px solid #6b9c94;
+            border-radius: 8px;
+            background: #fff;
+            color: #145c50;
+            font: inherit;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .column-shutter-restore-actions button[data-column-shutter-action="open-both"] {
+            background: #075e54;
+            color: #fff;
+            border-color: #075e54;
+        }
+
+        body.comparison-view-active #columnShutterControls,
+        body.selection-zoom-active #columnShutterControls,
+        body.image-zoom-active #columnShutterControls,
+        body.focused-editor-active #columnShutterControls,
+        body.screensaver-active #columnShutterControls {
+            display: none;
+        }
+
+        @media (max-width: 900px) {
+            #content.container,
+            #content[data-column-layout="last-only"],
+            #content[data-column-layout="this-only"],
+            #content[data-column-layout="none"] {
+                grid-template-columns: minmax(0, 1fr);
+                column-gap: 0;
+                row-gap: 14px;
+            }
+
+            #content > .column[data-shuttered="true"] {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) and (orientation: portrait) {
+            .column-shutter-controls {
+                inset: auto auto max(8px, env(safe-area-inset-bottom)) 50%;
+                width: min(calc(100vw - 24px), 360px);
+                padding: 6px;
+                box-sizing: border-box;
+                border: 1px solid rgba(128, 158, 151, 0.75);
+                border-radius: 15px;
+                background: rgba(246, 250, 249, 0.96);
+                box-shadow: 0 7px 24px rgba(17, 61, 53, 0.2);
+                display: flex;
+                gap: 7px;
+                transform: translateX(-50%);
+                backdrop-filter: blur(8px);
+            }
+
+            .column-shutter-toggle {
+                position: static;
+                flex: 1 1 0;
+                width: auto;
+                min-height: 44px;
+                padding: 7px 12px;
+                border-radius: 10px;
+                flex-direction: row;
+                transform: none;
+            }
+
+            .column-shutter-icon {
+                font-size: 23px;
+            }
+
+            #columnShutterEmptyState {
+                min-height: 220px;
+                padding: 28px 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #content.container,
+            #content > .column,
+            .column-shutter-toggle {
+                transition-duration: 1ms !important;
+            }
+        }
+
+        @media print {
+            #columnShutterControls,
+            #columnShutterStatus,
+            #columnShutterEmptyState {
+                display: none !important;
+            }
+
+            #content.container,
+            #content[data-column-layout] {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 10px !important;
+            }
+
+            #content > .column[data-shuttered] {
+                display: flex !important;
+                width: 48% !important;
+                padding: 20px !important;
+                border: 1px solid #ccc !important;
+                opacity: 1 !important;
+                clip-path: none !important;
+                overflow: visible !important;
+                visibility: visible !important;
+            }
+        }
+        /* --- END: 주간 컬럼 셔터 레이아웃 --- */
     </style>
     <script id="state-placeholder-script">
         // This is a placeholder for the saved state. The main script will overwrite this.
@@ -3642,9 +3933,26 @@
             <button id="navToggleBtn" title="네비게이션 접기">▲</button>
         </div>
 
-        <div class="container" id="content" style="padding-top: 156.075px;">
+        <nav class="column-shutter-controls" id="columnShutterControls" aria-label="주간 영역 접기 및 펴기">
+            <button type="button" class="column-shutter-toggle column-shutter-toggle--last"
+                id="lastWeekShutterBtn" data-column-shutter-action="toggle-last" data-open="true"
+                aria-controls="lastWeekColumn" aria-expanded="true" title="전주 영역 접기">
+                <span class="column-shutter-icon" aria-hidden="true">‹</span>
+                <span>전주</span>
+            </button>
+            <button type="button" class="column-shutter-toggle column-shutter-toggle--this"
+                id="thisWeekShutterBtn" data-column-shutter-action="toggle-this" data-open="true"
+                aria-controls="thisWeekColumn" aria-expanded="true" title="금주 영역 접기">
+                <span class="column-shutter-icon" aria-hidden="true">›</span>
+                <span>금주</span>
+            </button>
+        </nav>
+        <div class="column-shutter-status" id="columnShutterStatus" role="status" aria-live="polite"></div>
+
+        <div class="container" id="content" data-column-layout="both" style="padding-top: 156.075px;">
             <canvas id="annotationCanvas" width="1521" height="2285" style="display: none;"></canvas>
-            <div class="column" data-column-type="last-week" data-editable-type="column">
+            <div class="column" id="lastWeekColumn" data-column-type="last-week" data-editable-type="column"
+                data-shuttered="false" aria-hidden="false">
                 <div class="column-title" data-editable-type="column-title">
                     <span data-editable-type="column-title-text" contenteditable="true">전주 (1/12 ~ 1/18)</span>
                     <button class="transfer-items-btn" data-direction="to-this-week"
@@ -3715,7 +4023,8 @@
                     </div>
                 </div>
             </div>
-            <div class="column" data-column-type="this-week" data-editable-type="column">
+            <div class="column" id="thisWeekColumn" data-column-type="this-week" data-editable-type="column"
+                data-shuttered="false" aria-hidden="false">
                 <div class="column-title" data-editable-type="column-title">
                     <span data-editable-type="column-title-text" contenteditable="true">금주 (1/19 ~ 1/25)</span>
                     <button class="transfer-items-btn" data-direction="to-last-week"
@@ -3785,6 +4094,14 @@
                     </div>
                 </div>
             </div>
+            <section id="columnShutterEmptyState" hidden aria-label="모든 주간 영역이 접힘">
+                <p>전주와 금주 영역이 모두 접혀 있습니다.</p>
+                <div class="column-shutter-restore-actions">
+                    <button type="button" data-column-shutter-action="open-last">전주 열기</button>
+                    <button type="button" data-column-shutter-action="open-both">모두 열기</button>
+                    <button type="button" data-column-shutter-action="open-this">금주 열기</button>
+                </div>
+            </section>
             <div id="summary-section" style="display:none;" data-editable-type="summary-section"></div>
         </div>
 
@@ -4086,21 +4403,24 @@
         <button type="button" id="openFocusedEditorBtn" class="image-edit-btn-open" title="선택한 입력 영역을 큰 창에서 편집">확대 편집</button>
 
         <div id="focusedEditorOverlay" aria-hidden="true">
-            <div id="focusedEditorDialog" role="dialog" aria-modal="true" aria-labelledby="focusedEditorTitle">
+            <div id="focusedEditorDialog" role="dialog" aria-modal="true" aria-labelledby="focusedEditorTitle"
+                aria-describedby="focusedEditorExitNotice">
                 <div id="focusedEditorHeader">
                     <span id="focusedEditorTitle">입력 내용 확대 편집</span>
                     <div style="flex-grow: 1; display: flex; justify-content: flex-end; margin-right: 15px; gap: 8px;">
                         <input type="file" id="focusedImageFileInput" accept="image/*" multiple style="display: none;">
                         <button type="button" id="focusedInsertImageBtn" class="zoom-tool-btn" style="background-color: #f8f9fa; border: 1px solid #ddd; padding: 5px 10px;">🖼️ 이미지 삽입</button>
                     </div>
-                    <button type="button" id="focusedEditorCloseBtn" title="닫기">닫기</button>
+                    <button type="button" id="focusedEditorCloseBtn" title="편집 내용 저장 후 닫기">닫기</button>
                 </div>
                 <div id="focusedEditorBody">
                     <div id="focusedEditorSurface" contenteditable="true" spellcheck="false"></div>
                 </div>
                 <div id="focusedEditorFooter">
-                    <button type="button" id="focusedEditorCancelBtn">취소</button>
-                    <button type="button" id="focusedEditorApplyBtn">적용</button>
+                    <span class="focused-editor-exit-notice" id="focusedEditorExitNotice">
+                        닫기 또는 적용 버튼을 누르면 편집 내용이 저장됩니다. Esc 키로는 종료되지 않습니다.
+                    </span>
+                    <button type="button" id="focusedEditorApplyBtn" title="편집 내용 저장 후 닫기">적용</button>
                 </div>
             </div>
         </div>
@@ -4459,11 +4779,168 @@
                         focusedEditorButton.classList.remove('is-dragging');
                     }
 
+                    // 이벤트 리스너 연결 여부는 런타임 상태이므로 저장 HTML에 직렬화하지 않는다.
+                    clonedDoc.getElementById('columnShutterControls')?.removeAttribute('data-bound');
+
                     clonedDoc.getElementById('state-placeholder-script')?.remove();
                 }
             };
 
             return Object.freeze({ dom, storage, persistence });
+        })();
+
+        // 주간 컬럼 셔터: Domain -> Repository -> View -> Controller 단방향 의존성
+        const ColumnShutterFeature = (() => {
+            const STORAGE_KEY = 'weeklyMeeting.columnShutters.v1';
+            const DEFAULT_STATE = Object.freeze({ lastWeekOpen: true, thisWeekOpen: true });
+
+            const domain = Object.freeze({
+                normalize(candidate) {
+                    if (!candidate || typeof candidate !== 'object') return { ...DEFAULT_STATE };
+                    return {
+                        lastWeekOpen: candidate.lastWeekOpen !== false,
+                        thisWeekOpen: candidate.thisWeekOpen !== false
+                    };
+                },
+                reduce(state, action) {
+                    switch (action) {
+                        case 'toggle-last': return { ...state, lastWeekOpen: !state.lastWeekOpen };
+                        case 'toggle-this': return { ...state, thisWeekOpen: !state.thisWeekOpen };
+                        case 'open-last': return { ...state, lastWeekOpen: true };
+                        case 'open-this': return { ...state, thisWeekOpen: true };
+                        case 'open-both': return { lastWeekOpen: true, thisWeekOpen: true };
+                        default: return state;
+                    }
+                },
+                layout(state) {
+                    if (state.lastWeekOpen && state.thisWeekOpen) return 'both';
+                    if (state.lastWeekOpen) return 'last-only';
+                    if (state.thisWeekOpen) return 'this-only';
+                    return 'none';
+                },
+                status(state) {
+                    const layout = this.layout(state);
+                    if (layout === 'both') return '전주와 금주 영역이 모두 열렸습니다.';
+                    if (layout === 'last-only') return '전주 영역만 열렸습니다.';
+                    if (layout === 'this-only') return '금주 영역만 열렸습니다.';
+                    return '전주와 금주 영역이 모두 접혔습니다.';
+                }
+            });
+
+            const repository = Object.freeze({
+                load() {
+                    try {
+                        return domain.normalize(AppLayers.storage.getJson(STORAGE_KEY, DEFAULT_STATE));
+                    } catch (error) {
+                        console.warn('주간 영역 셔터 상태를 읽지 못해 기본값을 사용합니다.', error);
+                        return { ...DEFAULT_STATE };
+                    }
+                },
+                save(state) {
+                    try {
+                        AppLayers.storage.setJson(STORAGE_KEY, state);
+                    } catch (error) {
+                        console.warn('주간 영역 셔터 상태를 저장하지 못했습니다.', error);
+                    }
+                }
+            });
+
+            const view = (() => {
+                let elements = null;
+                let isBound = false;
+
+                function connect() {
+                    elements = {
+                        content: document.getElementById('content'),
+                        lastColumn: document.getElementById('lastWeekColumn'),
+                        thisColumn: document.getElementById('thisWeekColumn'),
+                        lastButton: document.getElementById('lastWeekShutterBtn'),
+                        thisButton: document.getElementById('thisWeekShutterBtn'),
+                        controls: document.getElementById('columnShutterControls'),
+                        emptyState: document.getElementById('columnShutterEmptyState'),
+                        status: document.getElementById('columnShutterStatus')
+                    };
+                    return Object.values(elements).every(Boolean);
+                }
+
+                function renderButton(button, isOpen, sideLabel, openIcon, closedIcon) {
+                    button.dataset.open = String(isOpen);
+                    button.setAttribute('aria-expanded', String(isOpen));
+                    button.setAttribute('title', `${sideLabel} 영역 ${isOpen ? '접기' : '펴기'}`);
+                    button.setAttribute('aria-label', `${sideLabel} 영역 ${isOpen ? '접기' : '펴기'}`);
+                    const icon = button.querySelector('.column-shutter-icon');
+                    if (icon) icon.textContent = isOpen ? openIcon : closedIcon;
+                }
+
+                function render(state, announce) {
+                    if (!elements) return;
+                    const layout = domain.layout(state);
+                    elements.content.dataset.columnLayout = layout;
+
+                    elements.lastColumn.dataset.shuttered = String(!state.lastWeekOpen);
+                    elements.lastColumn.setAttribute('aria-hidden', String(!state.lastWeekOpen));
+                    elements.lastColumn.inert = !state.lastWeekOpen;
+
+                    elements.thisColumn.dataset.shuttered = String(!state.thisWeekOpen);
+                    elements.thisColumn.setAttribute('aria-hidden', String(!state.thisWeekOpen));
+                    elements.thisColumn.inert = !state.thisWeekOpen;
+
+                    renderButton(elements.lastButton, state.lastWeekOpen, '전주', '‹', '›');
+                    renderButton(elements.thisButton, state.thisWeekOpen, '금주', '›', '‹');
+                    elements.emptyState.hidden = layout !== 'none';
+                    if (announce) elements.status.textContent = domain.status(state);
+                }
+
+                function bind(dispatch) {
+                    if (!elements || isBound) return;
+                    const handleAction = event => {
+                        const button = event.target.closest('[data-column-shutter-action]');
+                        if (!button) return;
+                        dispatch(button.dataset.columnShutterAction);
+                    };
+                    elements.controls.addEventListener('click', handleAction);
+                    elements.emptyState.addEventListener('click', handleAction);
+                    isBound = true;
+                }
+
+                return Object.freeze({ connect, render, bind });
+            })();
+
+            let state = { ...DEFAULT_STATE };
+            let mounted = false;
+
+            function dispatch(action) {
+                const nextState = domain.normalize(domain.reduce(state, action));
+                if (nextState.lastWeekOpen === state.lastWeekOpen &&
+                    nextState.thisWeekOpen === state.thisWeekOpen) return;
+                state = nextState;
+                repository.save(state);
+                view.render(state, true);
+                requestAnimationFrame(() => {
+                    if (typeof setupAnnotationCanvas === 'function') setupAnnotationCanvas();
+                });
+            }
+
+            function mount(savedState) {
+                if (mounted) return true;
+                if (!view.connect()) {
+                    console.error('주간 영역 셔터에 필요한 DOM을 찾지 못했습니다.');
+                    return false;
+                }
+                state = savedState && typeof savedState === 'object'
+                    ? domain.normalize(savedState)
+                    : repository.load();
+                view.bind(dispatch);
+                view.render(state, false);
+                mounted = true;
+                return true;
+            }
+
+            return Object.freeze({
+                mount,
+                getState: () => ({ ...state }),
+                openBoth: () => dispatch('open-both')
+            });
         })();
 
         let skippedDates = [];
@@ -7427,7 +7904,8 @@
                 areMenusCollapsed: true,
                 weeksForComparison: weeksForComparison,
                 isCompareModeActive: isCompareModeActive,
-                panelState: panelState // 패널 상태 저장
+                panelState: panelState, // 패널 상태 저장
+                columnShutterState: ColumnShutterFeature.getState()
             };
 
             const clonedDoc = document.cloneNode(true);
@@ -7678,6 +8156,7 @@
                 isCompareModeActive: isCompareModeActive,
                 areMenusCollapsed: true, // 메뉴를 닫힌 상태로 저장하도록 수정
                 panelState: panelState, // 패널 상태 저장
+                columnShutterState: ColumnShutterFeature.getState(),
                 content: {
                     lastWeek: document.querySelector('.column[data-column-type="last-week"]').innerHTML,
                     thisWeek: document.querySelector('.column[data-column-type="this-week"]').innerHTML,
@@ -10288,22 +10767,34 @@
             }, 0);
         }
 
-        function closeFocusedEditor(shouldApply = false) {
-            const overlay = document.getElementById('focusedEditorOverlay');
-            const surface = document.getElementById('focusedEditorSurface');
-            if (!overlay || !surface) return;
-
-            if (shouldApply && focusedEditorTarget && document.contains(focusedEditorTarget)) {
-                cleanEditableCloneForFocusedEditor(surface);
-                focusedEditorTarget.innerHTML = surface.innerHTML;
-                focusedEditorTarget.querySelectorAll('script').forEach(el => el.remove());
-                processPastedImages(focusedEditorTarget);
-                initializeInsertAreaToggles(focusedEditorTarget);
-                focusedEditorTarget.querySelectorAll('.image-annotation-text').forEach(makeAnnotationDraggable);
-                focusedEditorTarget.focus();
-                showMessage('확대 편집 내용이 적용되었습니다.', 'success', 1800);
+        function persistFocusedEditorContent(surface) {
+            const target = focusedEditorTarget;
+            if (!target || !target.isConnected || !target.isContentEditable) {
+                showMessage('원본 편집 영역을 찾을 수 없어 확대 편집 창을 닫지 않았습니다.', 'error', 2600);
+                surface.focus();
+                return false;
             }
 
+            try {
+                const cleanSnapshot = surface.cloneNode(true);
+                cleanEditableCloneForFocusedEditor(cleanSnapshot);
+                cleanSnapshot.querySelectorAll('script').forEach(el => el.remove());
+
+                target.innerHTML = cleanSnapshot.innerHTML;
+                target.querySelectorAll('script').forEach(el => el.remove());
+                processPastedImages(target);
+                initializeInsertAreaToggles(target);
+                target.querySelectorAll('.image-annotation-text').forEach(makeAnnotationDraggable);
+                return true;
+            } catch (error) {
+                console.error('확대 편집 내용 저장 오류:', error);
+                showMessage('편집 내용을 저장하지 못해 확대 편집 창을 닫지 않았습니다.', 'error', 3000);
+                surface.focus();
+                return false;
+            }
+        }
+
+        function finishFocusedEditorSession(overlay, surface) {
             overlay.classList.remove('active');
             overlay.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('focused-editor-active');
@@ -10312,17 +10803,28 @@
             }
             surface.innerHTML = '';
             if (focusedEditorTarget && document.contains(focusedEditorTarget)) {
+                focusedEditorTarget.focus();
                 showFocusedEditorButton(focusedEditorTarget);
             }
             hideTextFormatToolbar();
             restoreAllItemControlsToOwners();
         }
 
+        function saveAndCloseFocusedEditor() {
+            const overlay = document.getElementById('focusedEditorOverlay');
+            const surface = document.getElementById('focusedEditorSurface');
+            if (!overlay || !surface || !overlay.classList.contains('active')) return false;
+            if (!persistFocusedEditorContent(surface)) return false;
+
+            finishFocusedEditorSession(overlay, surface);
+            showMessage('확대 편집 내용이 저장되었습니다.', 'success', 1800);
+            return true;
+        }
+
         function initializeFocusedEditorFeature() {
             const openBtn = document.getElementById('openFocusedEditorBtn');
             const overlay = document.getElementById('focusedEditorOverlay');
             const applyBtn = document.getElementById('focusedEditorApplyBtn');
-            const cancelBtn = document.getElementById('focusedEditorCancelBtn');
             const closeBtn = document.getElementById('focusedEditorCloseBtn');
 
             if (openBtn) {
@@ -10336,12 +10838,8 @@
                     openFocusedEditor();
                 });
             }
-            cancelBtn?.addEventListener('click', () => closeFocusedEditor(false));
-            closeBtn?.addEventListener('click', () => closeFocusedEditor(true));
-            applyBtn?.addEventListener('click', () => closeFocusedEditor(true));
-            overlay?.addEventListener('mousedown', e => {
-                if (e.target === overlay) closeFocusedEditor(false);
-            });
+            closeBtn?.addEventListener('click', saveAndCloseFocusedEditor);
+            applyBtn?.addEventListener('click', saveAndCloseFocusedEditor);
 
             // --- START: 확대 편집 창 이미지 삽입 로직 ---
             const focusedInsertImageBtn = document.getElementById('focusedInsertImageBtn');
@@ -11046,12 +11544,11 @@
 
             document.addEventListener('keydown', e => {
                 const isOverlayActive = overlay?.classList.contains('active');
-                if (isOverlayActive && e.key === 'Escape') {
+                if (isOverlayActive && (e.key === 'Escape' || ((e.ctrlKey || e.metaKey) && e.key === 'Enter'))) {
                     e.preventDefault();
-                    closeFocusedEditor(false);
-                } else if (isOverlayActive && (e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    closeFocusedEditor(true);
+                    e.stopImmediatePropagation();
+                    showMessage('확대 편집을 마치려면 닫기 또는 적용 버튼을 누르세요.', 'info', 2200);
+                    document.getElementById('focusedEditorSurface')?.focus();
                 } else if (!isOverlayActive && (e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     const target = getFocusedEditableTarget(document.activeElement);
                     if (target) {
@@ -11059,7 +11556,7 @@
                         openFocusedEditor(target);
                     }
                 }
-            });
+            }, true);
         }
 
         function clampImagesToContainers(scope = contentArea) {
@@ -11664,6 +12161,7 @@
                 });
             }
 
+            ColumnShutterFeature.mount(window.__SAVED_APP_STATE__?.columnShutterState);
             initializeDynamicContent();
             initializeTabMenu();
 
