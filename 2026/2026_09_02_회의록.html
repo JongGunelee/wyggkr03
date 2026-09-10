@@ -3230,6 +3230,124 @@
         }
         /* END: 텍스트 서식 색상 옵션 선택 팝오버 UI */
 
+        /* START: 텍스트 서식 플로팅 툴바 링크 팝오버 UI (데스크탑 & 모바일 공통) */
+        .text-link-popover {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 290px;
+            background: rgba(26, 28, 35, 0.98) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 10px !important;
+            padding: 10px 12px !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+            z-index: 35100 !important;
+            color: #f3f4f6;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+            animation: textPopoverFadeIn 0.15s ease-out;
+        }
+        .text-link-popover.popover-above {
+            top: auto !important;
+            bottom: calc(100% + 8px) !important;
+        }
+        .text-link-popover .link-popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .text-link-popover .link-popover-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.2px;
+        }
+        .text-link-popover .link-popover-close-btn {
+            background: transparent;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: all 0.12s ease;
+        }
+        .text-link-popover .link-popover-close-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .text-link-popover .link-popover-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .text-link-popover .link-popover-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 7px 10px;
+            color: #fff;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .text-link-popover .link-popover-input:focus {
+            border-color: #3b82f6;
+            background: rgba(255, 255, 255, 0.14);
+        }
+        .text-link-popover .link-popover-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .text-link-popover .link-popover-apply-btn {
+            background: #007acc;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .text-link-popover .link-popover-apply-btn:hover {
+            background: #0098ff;
+        }
+        .text-link-popover .link-popover-remove-btn {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .text-link-popover .link-popover-remove-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fff;
+        }
+        @media (max-width: 600px) {
+            .text-link-popover {
+                width: calc(100vw - 28px) !important;
+                max-width: 320px !important;
+            }
+        }
+        /* END: 텍스트 서식 플로팅 툴바 링크 팝오버 UI */
+
         #textFormatToolbar input[type="color"]::-webkit-color-swatch {
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -5796,7 +5914,7 @@
 </style>
 </head>
 
-<body class="" style="">
+<body class="">
     <div id="appContainer">
         <div id="time-display-container">
             <span class="icon-timer">⏱️</span>
@@ -5813,19 +5931,19 @@
         <button class="fullscreen-btn-class" id="trueFullscreenBtn" title="전체 화면 보기/나가기" type="button" aria-label="전체 화면 보기/나가기">⛶</button>
         <button id="multiZoomTriggerBtn" title="선택된 항목 모두 확대" style="display: none;" type="button" aria-label="선택된 항목 모두 확대">🔍</button>
 
-        <button id="annotationDisplayToggleBtn" title="주석 켜기" type="button" aria-label="주석 켜기" style="display: none;" class="">👁️</button>
-        <button id="annotationSettingsToggleBtn" title="주석 설정" type="button" aria-label="주석 설정" style="display: none;" class="">⚙️</button>
+        <button id="annotationDisplayToggleBtn" title="주석 켜기" type="button" aria-label="주석 켜기" style="display: none;">👁️</button>
+        <button id="annotationSettingsToggleBtn" title="주석 설정" type="button" aria-label="주석 설정" style="display: none;">⚙️</button>
         <button id="memoAnnotationToggleBtn" title="텍스트 메모 추가 (내용 영역 클릭)" type="button" aria-label="텍스트 메모 추가 (내용 영역 클릭)" style="display: none;">📝</button>
 
         <h1 id="page-title" data-editable-type="page-title" contenteditable="true" class="" role="textbox" aria-multiline="false" enterkeyhint="done" aria-label="회의 제목 편집" spellcheck="true" autocapitalize="sentences">2026년 9월 2주차 주간 회의 안건<span contenteditable="false" data-title-suffix="true" style="font-size: 60%; color: gray; font-weight: normal; margin-left: 8px;">(37주차/52주)</span></h1>
 
-        <div id="weeklyNavigatorContainer" style="display: flex; top: 77.6414px;">
-            <div id="weeklyNavigatorContent"><div class="navigator-controls navigator-year-controls"><button id="prevYearBtn" title="이전 연도" type="button" aria-label="이전 연도">◀</button><span id="currentYearSpan" class="current-display-span">2026년</span><button id="nextYearBtn" title="다음 연도" type="button" aria-label="다음 연도">▶</button></div><div id="weekLinksContainer"><span class="navigator-status-item"><span class="week-link skipped" title="수동으로 미작성 처리됨">1주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-8-1" data-status="missing" data-status-origin="automatic" aria-pressed="false" title="2026년 8월 1주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다." aria-label="2026년 8월 1주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다.">—</button></span><span class="navigator-status-item"><span class="week-link active" title="2026년 8월 2주차 회의록 보기">2주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-8-2" data-status="written" data-status-origin="automatic" aria-pressed="true" title="2026년 8월 2주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다." aria-label="2026년 8월 2주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다.">✓</button></span><span class="navigator-status-item"><span class="week-link skipped" title="수동으로 미작성 처리됨">3주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-8-3" data-status="missing" data-status-origin="automatic" aria-pressed="false" title="2026년 8월 3주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다." aria-label="2026년 8월 3주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다.">—</button></span><span class="navigator-status-item"><span class="week-link active" title="2026년 8월 4주차 회의록 보기">4주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-8-4" data-status="written" data-status-origin="automatic" aria-pressed="true" title="2026년 8월 4주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다." aria-label="2026년 8월 4주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다.">✓</button></span></div><div class="navigator-controls navigator-month-controls"><button id="prevMonthBtn" title="이전 월" type="button" aria-label="이전 월">◀</button><span id="currentMonthSpan" class="current-display-span">8월</span><button id="nextMonthBtn" title="다음 월" type="button" aria-label="다음 월">▶</button></div><div id="compareControlsContainer">
+        <div id="weeklyNavigatorContainer" style="display: flex; top: 77.675px;">
+            <div id="weeklyNavigatorContent"><div class="navigator-controls navigator-year-controls"><button id="prevYearBtn" title="이전 연도" type="button" aria-label="이전 연도">◀</button><span id="currentYearSpan" class="current-display-span">2026년</span><button id="nextYearBtn" title="다음 연도" type="button" aria-label="다음 연도">▶</button></div><div id="weekLinksContainer"><span class="navigator-status-item"><span class="week-link skipped" title="수동으로 미작성 처리됨">1주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-9-1" data-status="missing" data-status-origin="automatic" aria-pressed="false" title="2026년 9월 1주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다." aria-label="2026년 9월 1주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다.">—</button></span><span class="navigator-status-item"><span class="week-link actual-current current" title="현재 보고 있는 문서">2주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-9-2" data-status="written" data-status-origin="automatic" aria-pressed="true" title="2026년 9월 2주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다." aria-label="2026년 9월 2주: 현재 '작성' (자동/XLSB 판정). 클릭하면 '미작성'으로 수동 변경합니다.">✓</button></span><span class="navigator-status-item"><span class="week-link disabled" title="미래 회의록">3주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-9-3" data-status="missing" data-status-origin="automatic" aria-pressed="false" title="2026년 9월 3주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다." aria-label="2026년 9월 3주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다.">—</button></span><span class="navigator-status-item"><span class="week-link disabled" title="미래 회의록">4주</span><button type="button" class="navigator-status-toggle" data-status-key="2026-9-4" data-status="missing" data-status-origin="automatic" aria-pressed="false" title="2026년 9월 4주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다." aria-label="2026년 9월 4주: 현재 '미작성' (자동/XLSB 판정). 클릭하면 '작성'으로 수동 변경합니다.">—</button></span></div><div class="navigator-controls navigator-month-controls"><button id="prevMonthBtn" title="이전 월" type="button" aria-label="이전 월">◀</button><span id="currentMonthSpan" class="current-display-span">9월</span><button id="nextMonthBtn" title="다음 월" type="button" aria-label="다음 월">▶</button></div><div id="compareControlsContainer">
     <span id="compareInfo" style="font-weight: bold; margin-right: 10px; color: #00695c;"></span>
     <button id="executeCompareBtn" title="선택한 주차들을 나란히 놓고 비교합니다." type="button" aria-label="선택한 주차들을 나란히 놓고 비교합니다.">선택 주차 비교 실행</button>
     <button id="cancelCompareBtn" title="비교 모드를 취소하고 선택을 초기화합니다." type="button" aria-label="비교 모드를 취소하고 선택을 초기화합니다.">비교 모드 취소</button>
   </div></div>
-            <button id="navToggleBtn" title="네비게이션 접기" type="button" aria-label="네비게이션 접기">▲</button>
+            <button id="navToggleBtn" title="네이비게이션 접기" type="button" aria-label="네비게이션 접기">▲</button>
         </div>
 
         <nav class="column-shutter-controls" id="columnShutterControls" aria-label="주간 영역 접기 및 펴기">
@@ -5838,10 +5956,10 @@
                 <span>금주 [펼침]</span>
             </button>
         </nav>
-        <div class="column-shutter-status" id="columnShutterStatus" role="status" aria-live="polite">전주와 금주 영역이 모두 열렸습니다.</div>
+        <div class="column-shutter-status" id="columnShutterStatus" role="status" aria-live="polite"></div>
 
-        <div class="container" id="content" data-column-layout="both" style="padding-top: 153.433px;">
-            <canvas id="annotationCanvas" width="1510" height="2120" style="display: none; pointer-events: none;"></canvas>
+        <div class="container" id="content" data-column-layout="both" style="padding-top: 156.075px;">
+            <canvas id="annotationCanvas" width="1521" height="2168" style="display: none;"></canvas>
             <div class="column" id="lastWeekColumn" data-column-type="last-week" data-editable-type="column" data-shuttered="false" aria-hidden="false">
                 <div class="column-title" data-editable-type="column-title">
                     <span data-editable-type="column-title-text" contenteditable="true" role="textbox" aria-multiline="true" enterkeyhint="enter" aria-label="회의 내용 편집" spellcheck="true" autocapitalize="sentences">전주 (8/31 ~ 9/6)</span>
@@ -6227,7 +6345,7 @@
             <div id="summary-section" style="display:none;" data-editable-type="summary-section"></div>
         </div>
 
-        <div id="annotationSettingsPanel" style="display: none; inset: 8px auto auto 8px; transform: none;" data-drag-moved="false" class="">
+        <div id="annotationSettingsPanel" style="display: none;">
             <div id="annoPanelHeader" class="anno-panel-header">
                 <button type="button" id="annotationPanelCollapseToggle" class="floating-bubble-toggle" title="판서 설정 접기" aria-label="판서 설정 접기" aria-expanded="true">-</button>
                 <span id="annoPanelDragHandle" class="anno-panel-drag-handle" title="마우스 또는 손가락으로 드래그해서 위치 이동">⠿</span>
@@ -6238,11 +6356,11 @@
             </div>
             <div id="annoPanelBody" class="anno-panel-body">
             <div class="anno-tool-row">
-                <button id="annoToolPen" data-tool="pen" title="펜" type="button" aria-label="펜" class="">펜</button>
+                <button id="annoToolPen" data-tool="pen" title="펜" type="button" aria-label="펜">펜</button>
                 <button id="annoToolHighlighter" data-tool="highlighter" title="형광펜" type="button" aria-label="형광펜">형광펜</button>
-                <button id="annoToolCircle" data-tool="circle" title="원" type="button" aria-label="원" class="">○</button>
+                <button id="annoToolCircle" data-tool="circle" title="원" type="button" aria-label="원">○</button>
                 <button id="annoToolEllipse" data-tool="ellipse" title="타원" type="button" aria-label="타원">◌</button>
-                <button id="annoToolOrthoLine" data-tool="orthoLine" title="직각선" type="button" aria-label="직각선" class="tool-active">📐</button>
+                <button id="annoToolOrthoLine" data-tool="orthoLine" title="직각선" type="button" aria-label="직각선">📐</button>
             </div>
             <div class="anno-option-row">
                 <label for="annoColorPicker">색:</label>
@@ -6257,7 +6375,7 @@
                 <input type="range" id="annoHighlighterOpacity" min="0.1" max="1" step="0.1" value="0.3" title="형광펜 투명도">
             </div>
             <div class="anno-tool-row">
-                <button id="annoToolEraser" data-tool="eraser" title="지우개" type="button" aria-label="지우개" class="">지우개</button>
+                <button id="annoToolEraser" data-tool="eraser" title="지우개" type="button" aria-label="지우개">지우개</button>
                 <button id="annoClearCanvas" title="모두 지우기" type="button" aria-label="모두 지우기">전체삭제</button>
             </div>
             <div class="anno-option-row">
@@ -6277,7 +6395,7 @@
         
 
         <!-- START: 개선된 탭 기반 패널 구조 -->
-        <div class="floating-panel" id="menuPanel" style="display: none; inset: 16.4311px auto auto 786.595px; width: 350px; height: 500px;">
+        <div class="floating-panel" id="menuPanel" style="display: none; inset: 215px auto auto 231px; width: 350px; height: 500px;">
             <div class="panel-header" title="드래그하여 메뉴 위치 이동">
                 <div class="panel-title-group" style="display:flex; align-items:center; gap:8px;">
                     <span class="drag-handle-grip" style="font-size:16px; opacity:0.85; cursor:move;" aria-hidden="true">⋮⋮</span>
@@ -6373,10 +6491,10 @@
                         <label>텍스트 서식</label>
                         <div class="format-controls">
                             <button id="formatPainterBtn" title="서식 복사" type="button" aria-label="서식 복사">🖌️</button>
-                            <button id="applyBoldBtn" title="굵게" class="active" type="button" aria-label="굵게"><b>B</b></button>
-                            <button id="applyItalicBtn" title="기울임꼴" type="button" aria-label="기울임꼴" class=""><i>I</i></button>
+                            <button id="applyBoldBtn" title="굵게" class="" type="button" aria-label="굵게"><b>B</b></button>
+                            <button id="applyItalicBtn" title="기울임꼴" type="button" aria-label="기울임꼴"><i>I</i></button>
                             <button id="applyUnderlineBtn" title="밑줄" class="" type="button" aria-label="밑줄"><u>U</u></button>
-                            <button id="applyStrikethroughBtn" title="취소선" style="text-decoration: line-through;" type="button" aria-label="취소선" class="">S</button>
+                            <button id="applyStrikethroughBtn" title="취소선" style="text-decoration: line-through;" type="button" aria-label="취소선">S</button>
                             <button id="applySuperscriptBtn" title="위 첨자" type="button" aria-label="위 첨자">A<sup>+</sup></button>
                             <button id="applySubscriptBtn" title="아래 첨자" type="button" aria-label="아래 첨자">A<sub>-</sub></button>
                         </div>
@@ -6446,14 +6564,14 @@
                     </div>
                     <div id="selectionInfoPanel" class="panel-section" style="display: none;">
                         <label>🔍 선택 요소 정보</label>
-                        <div class="info-item"><strong>태그:</strong> <code id="info-tagName">SPAN</code></div>
-                        <div class="info-item"><strong>글꼴:</strong> <code id="info-fontFamily">LG스마트체 Regular</code></div>
-                        <div class="info-item"><strong>크기:</strong> <code id="info-fontSize">18px</code></div>
+                        <div class="info-item"><strong>태그:</strong> <code id="info-tagName">DIV</code></div>
+                        <div class="info-item"><strong>글꼴:</strong> <code id="info-fontFamily">맑은 고딕</code></div>
+                        <div class="info-item"><strong>크기:</strong> <code id="info-fontSize">16px</code></div>
                         <div class="info-item"><strong>굵기:</strong> <code id="info-fontWeight">400</code></div>
                         <div class="info-item"><strong>스타일:</strong> <code id="info-fontStyle">normal</code></div>
                         <div class="info-item"><strong>장식:</strong> <code id="info-textDecoration">none</code></div>
-                        <div class="info-item"><strong>글자색:</strong> <span><span class="color-preview" id="info-fontColor-preview" style="background-color: rgb(0, 0, 0);"></span><code id="info-fontColor">#000000</code></span></div>
-                        <div class="info-item"><strong>배경색:</strong> <span><span class="color-preview" id="info-backColor-preview" style="background-color: rgb(255, 255, 255);"></span><code id="info-backColor">#ffffff</code></span></div>
+                        <div class="info-item"><strong>글자색:</strong> <span><span class="color-preview" id="info-fontColor-preview" style="background-color: rgb(43, 43, 43);"></span><code id="info-fontColor">#2B2B2B</code></span></div>
+                        <div class="info-item"><strong>배경색:</strong> <span><span class="color-preview" id="info-backColor-preview" style="background-color: rgb(255, 255, 255);"></span><code id="info-backColor">#FFFFFF</code></span></div>
                     </div>
                 </div>
 
@@ -6483,8 +6601,8 @@
                         </div>
                         <div class="date-manager-month-selector" id="dateManagerMonthSelector"><button type="button" data-month="1">1월</button><button type="button" data-month="2">2월</button><button type="button" data-month="3">3월</button><button type="button" data-month="4">4월</button><button type="button" data-month="5">5월</button><button type="button" data-month="6">6월</button><button type="button" data-month="7">7월</button><button type="button" data-month="8">8월</button><button type="button" data-month="9" class="active">9월</button><button type="button" data-month="10">10월</button><button type="button" data-month="11">11월</button><button type="button" data-month="12">12월</button></div>
                         <div id="dateManagementCalendar"><button type="button" class="week-status-btn status-skipped" data-status="skipped" title="2026년 9월 1주 · 미작성 (GitHub 관리) · 클릭하면 작성으로 변경" aria-label="2026년 9월 1주 · 미작성 (GitHub 관리) · 클릭하면 작성으로 변경">1주</button><button type="button" class="week-status-btn status-written" data-status="written" title="2026년 9월 2주 · 작성 (GitHub 관리) · 클릭하면 미작성으로 변경" aria-label="2026년 9월 2주 · 작성 (GitHub 관리) · 클릭하면 미작성으로 변경">2주</button><button type="button" class="week-status-btn status-future" data-status="future" title="2026년 9월 3주 · 미지정 (미지정) · 클릭하면 작성으로 변경" aria-label="2026년 9월 3주 · 미지정 (미지정) · 클릭하면 작성으로 변경">3주</button><button type="button" class="week-status-btn status-future" data-status="future" title="2026년 9월 4주 · 미지정 (미지정) · 클릭하면 작성으로 변경" aria-label="2026년 9월 4주 · 미지정 (미지정) · 클릭하면 작성으로 변경">4주</button></div>
-                        <div class="navigator-github-status" id="weeklyGithubStatusBox" data-state="saved">
-                            <span id="weeklyGithubStatusText" role="status" aria-live="polite">GitHub XLSB와 동기화됨</span>
+                        <div class="navigator-github-status" id="weeklyGithubStatusBox" data-state="waiting">
+                            <span id="weeklyGithubStatusText" role="status" aria-live="polite">GitHub 업로드 대기 5건 · 화면에는 반영됨</span>
                             <button type="button" id="weeklyGithubRefreshBtn">새로고침</button>
                             <button type="button" id="weeklyGithubSyncBtn">대기 변경 동기화</button>
                         </div>
@@ -6532,7 +6650,7 @@
                             <label for="menuAnnoKeepDrawingsVisible" class="checkbox-label">그림 유지(비활성시)</label>
                         </div>
                         <button id="menuAnnoDrawingToggle" style="width:100%; margin-top:5px;" type="button">주석 켜기/끄기</button>
-                        <button id="menuAnnoSettingsPanelToggle" style="width:100%; margin-top:5px;" type="button" class="">주석 설정
+                        <button id="menuAnnoSettingsPanelToggle" style="width:100%; margin-top:5px;" type="button">주석 설정
                             열기/닫기</button>
                         <button id="menuMemoAnnotationBtn" style="width:100%; margin-top:5px;" type="button">메모 추가</button>
                     </div>
@@ -6566,8 +6684,8 @@
         
 
         <button type="button" id="openFocusedEditorBtn" class="image-edit-btn-open" title="선택한 입력 영역을 큰 창에서 편집" aria-label="선택한 입력 영역을 큰 창에서 편집">🔍 확대 편집</button>
-        <div id="focusedEditorOverlay" aria-hidden="true" class="">
-            <div id="focusedEditorDialog" role="dialog" aria-modal="true" aria-labelledby="focusedEditorTitle" aria-describedby="focusedEditorExitNotice" class="">
+        <div id="focusedEditorOverlay" aria-hidden="true">
+            <div id="focusedEditorDialog" role="dialog" aria-modal="true" aria-labelledby="focusedEditorTitle" aria-describedby="focusedEditorExitNotice">
                 <button type="button" id="focusedEditorMasterToggle" title="전체 헤더 숨기기 (-)" aria-label="전체 헤더 숨기기 (-)" aria-pressed="false">−</button>
                 <div id="focusedEditorHeader">
                     <span id="focusedEditorTitle">입력 내용 확대 편집</span>
@@ -6705,7 +6823,7 @@
                         <div style="margin-top: 2px;"><input type="checkbox" class="clone-item-checkbox" data-index="2"></div>
                         <div class="clone-item-preview">
                             <span class="clone-item-type-badge">섹션</span>
-                            <span style="margin-left:5px;">■ 기타 항목                                                                                        1) 🔗 9월 월마감일 단축&nbsp;:&nbsp;25일 → 🔴&nbsp;18일(금) 이전에 월 마감 필요 ,&nbsp;&nbsp;&nbsp;추석 연휴&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                                                                                                                                                                                                    &nbsp;                                                                                                                                                                          2) 안전팀 사전 협의 대상 추가 항목&nbsp; &nbsp; &nbsp;🔴🔗 세대내 단순 작업 SOP 대상 추가➡️ 방충망, 방문, 신발장, 실리콘, 시트지, 걸레받이 등&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 안전 난이도 : 현재 SOP대상(도장,도배,장판,청소) 〉 세대내 단순 작업&nbsp; &nbsp; &nbsp;🔴🔗&nbsp;B동 2호기 승강기 카트 천장속 CCTV 케이블 점검 및 교체➡️ 일반 OR 고위험&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 승강기 운전원 일정 확인후 조율 (🔗 A동 2호기 참조 )&nbsp;&nbsp; &nbsp; &nbsp;🔴 5동 506호 붙박이장 설치 (🔗사다리차 )➡️ 일반 or 고위험&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 전면부 난간대 앙카 탈락에 따른 후면 으로 반입 ➡️ 시공사 검토중3) 기계 (난방 분배기등 기타 필요 묶음) 및 전기 (7동 LED등 교체 필요 세대) 취합후 공유 🔴 관리소4)&nbsp;사택 103동 지하 주차장 엘레베이터 E/V 전실 자동문 제어 일정&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 자재 발주 : 2주 ~ 3주 ( 현재 발주중 )&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 작업 일정 : 10월 6일(화) , 7일(수) , 8일(목) =&gt; 3일간&nbsp; ✔️ 1안) 🔗전실내 벽면 부착 LED 바 외형 (L=min 500mm)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ✔️ 2안)🔗E/V 전실내 벽면 부착 LED 바 외형 (L=min 120mm , @50mm)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          5) 어린이집 고장 조명 교체 기존 견적 파기후 신규 견적 PR발행 확정 필요&nbsp; &nbsp; &nbsp; &nbsp; ✔️ 시공사 -399,9900원 네고 (Fee포함)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;                                                                                                                                                                          6) 건축/기계 긴급 대응 09월 까지 잔여 누적 비용 및 건축 '26년 전체 관리 내역 (엑셀본)&nbsp; &nbsp; &nbsp; &nbsp;✔️ 작성중 견적 독촉중 7)🔗단지내 야외용 포충기 설치 검토&nbsp;(🔴 제품 2개 인계후 도면실에 보관 및 기타 작업 투입 대기중 )&nbsp; &nbsp; &nbsp; &nbsp;                                                                                                                                                                           &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          8) AB동 및 3동 난방 및 급탕 펌 펌프 교체 비용&nbsp; &nbsp; &nbsp; ✔️ 현재 설치 되어 있는 Spec. 동일 _ (전기 전원 결선 제외),&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖ 전기 공사로 전환시 최소인건비 적용시 약 1,000,000원 ~ 2,000,000원 예상&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖ 펌프 교체만 선택적 투자성 분리 발주 필요시 아래의 목록 에서 선택 (협의)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;9) 사택 102동 및 AB동 비상방송 점검 현황&nbsp; &nbsp; &nbsp; ✔️ 점검 및 조치 보고서&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                  &nbsp;                                                                                                                                                  &nbsp;&nbsp; &nbsp; &nbsp; ✔️ PR 당사안 및 발행 분리 필요 ( 비용 배분을 위함 )&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ⭕🔗&nbsp;102동 비상방송 AMP 소프트웨어 점검&nbsp;🔴 단독(솔루션), 비용 배분을 위한 분리 PR발행 필요&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; ➖&nbsp;합동전자: 900,000원(Fee 미포함),VAT별도&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖&nbsp;원인: 중계기 리셋 (소프트 웨어 정상 작동)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖&nbsp;102동(3-4라인): 1층 , 2층 비상 방송 스피커 없음 (2개 설치 필요) 유/무&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➡️ 스피커 2개 추가 및 간선 설치비 : 2,473,000원(Fee 미포함)&nbsp; &nbsp; &nbsp; &nbsp;⭕🔗&nbsp;AB동 화재수신기 (R형 복합식) 소프트웨어 점검&nbsp;🔴 공용(솔루션+화학), 비용 배분을 위한 분리 PR발행 필요&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➖ 에스더전자 : 2,850,000원(Fee 미포함),VAT별도&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➖ 원인 : 삭제된 입.출력 코드로 재 코딩후 입</span>
+                            <span style="margin-left:5px;">■ 기타 항목                                                                                        1) 안전 사전 협의 안건_추가&nbsp; &nbsp; &nbsp;🔴🔗 세대내 단순 작업 SOP 대상 추가➡️ 방충망, 방문, 신발장, 실리콘, 시트지, 걸레받이 등&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 안전 난이도 : 현재 SOP대상(도장,도배,장판,청소) 〉 세대내 단순 작업&nbsp; &nbsp; &nbsp;🔴🔗&nbsp;B동 2호기 승강기 카트 천장속 CCTV 케이블 점검 및 교체➡️ 일반 OR 고위험&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 승강기 운전원 일정 확인후 조율 (🔗 A동 2호기 참조 )&nbsp;&nbsp; &nbsp; &nbsp;🔴 5동 506호 붙박이장 설치 (🔗사다리차 ) 및  🔗용접 작업 (참조_🔗유사 작업 티그 용접)  📌 일반 or 고위험&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 전면부 난간대 앙카 탈락에 따른 후면 으로 반입 📌 시공사 검토 완료&nbsp; &nbsp;&nbsp;&nbsp;(🔴고위험) 기존 작업 투입 절차&nbsp;(안전 방문 교육/공도구 점검📌)&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;- **🔗&nbsp;기존 투입 절차&nbsp;** 이전 작업 절차로 정례화 요청 (누전 테스트기 : 관리소 활용 가능 확인 필요 / 시간은 업체 협의 예정)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;사다리차 는???2)  🔗 9월 3주차 작업&nbsp;계획&nbsp;: 세대내 비품.소액성 실비 정산 작업 진행 ( 작업허가서 대상 )3) 🔗 9월 월마감일 단축&nbsp;:&nbsp;25일 → 🔴&nbsp;18일(금) 이전에 월 마감 필요 ,&nbsp;&nbsp;&nbsp;추석 연휴&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                                                                                                                                                                                                    &nbsp;                                                                                                                                                                           4) 기계&nbsp;(난방 분배기등 기타 필요 묶음) / 전기 (7동 LED등 교체) / 건축 (렌지후드) 📌&nbsp;관리소에서 일괄 취합후 공유 필요5)&nbsp;사택 103동 지하 주차장 엘레베이터 E/V 전실 자동문 제어 일정&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 자재 발주 : 2주 ~ 3주 ( 현재 발주중 )&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;✔️ 작업 일정 : 10월 6일(화) , 7일(수) , 8일(목) =&gt; 3일간&nbsp; ✔️ 1안) 🔗전실내 벽면 부착 LED 바 외형 (L=min 500mm)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ✔️ 2안)🔗E/V 전실내 벽면 부착 LED 바 외형 (L=min 120mm , @50mm)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          6) 어린이집 고장 조명 교체 기존 견적 파기후 신규 견적 PR발행 확정 필요&nbsp; &nbsp; &nbsp; &nbsp; ✔️ 시공사 :&nbsp; -399,9900원 네고 (Fee포함)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;                                                                                                                                                                          7) 어린이집 조합 놀이대 견적&nbsp;🔜 &nbsp;건축 표준단가 시공사 실사 ( 견적중 ) &nbsp; &nbsp; &nbsp; &nbsp;✔️ 현장 점검&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ➖ 조합 놀이대 반입 : 스카이장 또는 건설장비 🔜 ❌, 반입 경로 확인 ⭕&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖ 조합 놀이대 :&nbsp;제작시 파트별 (경량) 분리&nbsp; 🔜&nbsp;사용처에서는 조립(볼팅)‖ 바닥 앙카 🔜 수공구외 별도 건설 공구&nbsp;❌ &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ➖ 바닥 매트&nbsp;🔜 기존 놀이대 기둥 부분만 제거 필요 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ➖ 기존 놀이대의 바닥 기둥: 바닥 매트 관통 부분이 적어 부분 보수가 아닌 간단 메움 조치&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;** 설치시 훼손을 방지 하기위한 기존 바닥 보호용 보양만 철저히&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  ➖&nbsp;폐기물 : 기존 철거 놀이대의 폐기물 처리량이 적어 별도의 폐기물 처리는 전체 견적에 영향이 없을 듯함&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; **&nbsp;5동 폐기물 집하장으로 이동 하는것도 폐기물 처리비 절감 예상&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          ◀접수(어린이집)&nbsp;                                                                                                                                                                          &nbsp;&nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          ◀기존 놀이대&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          ◀경로(102동)&nbsp;&nbsp;                                                                                                                                                                          ▶&nbsp;                                                                                                                                                                           ▶ &nbsp;                                                                                                                                                                           ▶ &nbsp;                                                                                                                                                                           ◀예상 적재소8) 어린이집 바닥 난방용 각방 제어기 : &nbsp; &nbsp; &nbsp; &nbsp;✔️ 기존 제품 과 호환 문제 : 고장 1층(1개소) + 2층(1개소) &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;➖ 도 면 : 없 음&nbsp;(어린이집 에서 보유 하고 있는 도면는 인테리어 도면임), 향후 도면화 필요&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;➖ 현 황 : 1층 3개소 + 2층 3개소&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;➖ 고 장 : 1층 1개소 + 2층 1개소&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;➖ 귀뚜라미 보일러측&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; .&nbsp;&nbsp;고장 (밸브 본체+밸브 구동기+밸브 제어기+온도 조절기) 교체로 해결 보일러 제어 가능 판단 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; .&nbsp; 기존 제조사 확인 되어 귀뚜라미보일러 와 협의 진행중 ???&nbsp; 🔜 귀뚜라미보일러 확정후 회신 접수 대기중 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; . 🔴제조사 맞지 않으면 전체 교체 의견(귀뚜라미 보일러)&nbsp; 🔜&nbsp;밸브 본체+밸브 구동기+밸브 제어기+온도 조절기&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                                          난방 분배기&nbsp;                                                                                                                                                                          밸브 제어기밸브 본체                                                                                                                                                                          구동기&nbsp;&nbsp;                                                                                                                                                                          온도 조절기&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;9)🔗 건축/기계 실비 정산 대응 : (소액 • 비품 • 긴급) 09월 까지 잔여 누적 비용 및 건축 '26년 전체 관리 내역 (스캔 🔜 엑셀본)&nbsp; &nbsp; &nbsp; &nbsp;✔️ 작성중 견적 독촉중 :&nbsp; ~ 9월 11일(금) 제출 예정&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;10)🔗단지내 야외용 포충기 설치 검토&nbsp;(🔴 제품 2개 인계후 도면실에 보관🔜 9월 3주차 진행 예정 )&nbsp; &nbsp; &nbsp; &nbsp;                                                                                                                                                                           &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                          &nbsp;                                                                                                                                                                           11)🔗&nbsp;102동 지하 2층 주차장 천장 뿜 탈락 방지용&nbsp;방염포 색상 확인 필요 (회색 계열) 🔴 제품 접수 대기중&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 12) AB동 및 3동 난방 및 급탕 펌 펌프 교체 비용&nbsp; &nbsp; &nbsp; ✔️ 현재 설치 되어 있는 Spec. 동일 _ (전기 전원 결선 제외)📌수선비&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖ 전기 공사로 전환시 최소인건비 적용시 약 1,000,000원 ~ 2,000,000원 예상&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖ 펌프 교체만 선택적 투자성 분리 발주 필요시 아래의 목록 에서 선택 (협의) 📌투자비&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;13) 사택 102동 및 AB동 비상방송 점검 현황&nbsp; &nbsp; &nbsp; ✔️ 점검 및 조치 보고서&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;                                                                                                                                                  &nbsp;                                                                                                                                                  &nbsp;&nbsp; &nbsp; &nbsp; ✔️ PR 당사안 및 발행 분리 필요 ( 비용 배분을 위함 )&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ⭕🔗&nbsp;102동 비상방송 AMP 소프트웨어 점검&nbsp;🔴 단독(솔루션), 비용 배분을 위한 분리 PR발행 필요&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; ➖&nbsp;합동전자: 900,000원(Fee 미포함),VAT별도&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖&nbsp;원인: 중계기 리셋 (소프트 웨어 정상 작동)&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ➖&nbsp;102동(3-4라인): 1층 , 2층 비상 방송 스피커 없음 (2개 설치 필요) 유/무&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➡️ 스피커 2개 추가 및 간선 설치비 : 2,473,000원(Fee 미포함)&nbsp; &nbsp; &nbsp; &nbsp;⭕🔗&nbsp;AB동 화재수신기 (R형 복합식) 소프트웨어 점검&nbsp;🔴 공용(솔루션+화학), 비용 배분을 위한 분리 PR발행 필요&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➖ 에스더전자 : 2,850,000원(Fee 미포함),VAT별도&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;➖ 원인 : 삭제된 입.출력 코드로 재 코딩후 입</span>
                         </div>
                     </label></li><li class="clone-item-row"><label>
                         <div style="margin-top: 2px;"><input type="checkbox" class="clone-item-checkbox" data-index="3"></div>
@@ -6731,16 +6849,15 @@
         </div>
 
         <div id="areaSelectionRectangle" style="display: none;"></div>
-        <div id="selectionZoomOverlay" style="display: none;" class="">
+        <div id="selectionZoomOverlay" style="display: none;">
             <button class="close-selection-zoom-btn" id="closeSelectionZoomBtn" title="닫기 (또는 바깥 클릭)" type="button" aria-label="닫기 (또는 바깥 클릭)">✕</button>
             <div id="selectionZoomContent"></div>
         </div>
 
         <!-- START: 이미지 확대 보기(Zoom)를 위한 HTML 구조 -->
-        <div id="imageZoomOverlay" style="display: none; cursor: default; overflow: hidden !important;">
+        <div id="imageZoomOverlay" style="display: none; cursor: default;">
             <button type="button" class="close-image-zoom-btn" title="닫기" aria-label="확대 이미지 닫기">×</button>
-            
-            <div id="zoomEditorToolbar" class="zoom-editor-toolbar" style="display: none; inset: 8px auto auto 8px; transform: none;">
+            <div id="zoomEditorToolbar" class="zoom-editor-toolbar" style="display: none;">
                 <div class="zoom-toolbar-head">
                     <button type="button" id="zoomToolbarCollapseToggle" class="floating-bubble-toggle" title="판서 메뉴 접기" aria-label="판서 메뉴 접기" aria-expanded="true">-</button>
                     <button type="button" class="zoom-toolbar-drag-handle" id="zoomToolbarDragHandle" title="툴바 이동" aria-label="판서 툴바 이동">
@@ -6762,17 +6879,82 @@
                     <button class="zoom-tool-btn" id="zoomDownloadBtn" title="선택 이미지 다운로드" aria-label="선택 이미지 다운로드" type="button">⬇️ <span class="zoom-download-label">저장</span></button>
                     <button class="zoom-tool-btn" id="zoomDeleteBtn" title="이미지 삭제" type="button" aria-label="이미지 삭제">🗑️ 삭제</button>
                 </div>
-            </div><div id="imageZoomContent" style="transform: translate3d(0px, 0px, 0px) scale(1); transform-origin: center center; transition: transform 0.12s cubic-bezier(0.1, 0.9, 0.2, 1);">
-                <img id="imageZoomImg" alt="Zoomed Image" data-download-name="붙여넣은 이미지">
-                <canvas id="zoomAnnotationCanvas" width="1600" height="913" style="pointer-events: none; width: 1448px; height: 826px;"></canvas>
-                <div id="zoomAnnotationsContainer" style="width: 1448px; height: 826px;"></div>
+            </div>
+            <div id="imageZoomContent">
+                <img id="imageZoomImg" alt="Zoomed Image">
+                <canvas id="zoomAnnotationCanvas"></canvas>
+                <div id="zoomAnnotationsContainer"></div>
             </div>
             <div id="zoomWindowSelectionBox" class="zoom-window-selection-box" aria-hidden="true" style="display: none;"></div>
         </div>
         <!-- END: 이미지 확대 보기(Zoom)를 위한 HTML 구조 -->
 
         <!-- START: 텍스트 서식 플로팅 툴바 HTML 구조 -->
-        
+        <div id="textFormatToolbar" class="text-format-toolbar" style="display: none;">
+            <button id="floatBtnBold" class="toolbar-btn" data-command="bold" title="굵게" type="button" aria-label="굵게"><b>B</b></button>
+            <button id="floatBtnItalic" class="toolbar-btn" data-command="italic" title="기울임" type="button" aria-label="기울임"><i>I</i></button>
+            <button id="floatBtnUnderline" class="toolbar-btn" data-command="underline" title="밑줄" type="button" aria-label="밑줄"><u>U</u></button>
+            <button id="floatBtnStrike" class="toolbar-btn" data-command="strikeThrough" title="취소선" type="button" aria-label="취소선"><s>S</s></button>
+            <div class="toolbar-divider"></div>
+            <input type="number" id="floatFontSize" class="toolbar-size-input" min="10" max="100" value="16" title="글꼴 크기">
+            <div class="toolbar-divider"></div>
+            <div class="color-picker-wrapper" title="글자 색상">
+                <button type="button" class="color-picker-trigger" id="floatFontColorBtn" title="글자 색상 선택" aria-label="글자 색상 선택">
+                    <span class="color-picker-icon">🎨</span>
+                    <span class="color-indicator-bar" id="floatFontColorBar"></span>
+                </button>
+                <input type="color" id="floatFontColor" class="toolbar-color-picker visually-hidden-proxy" value="#000000" tabindex="-1">
+            </div>
+            <div class="color-picker-wrapper" title="배경 색상 (형광펜)">
+                <button type="button" class="color-picker-trigger" id="floatBackColorBtn" title="배경 색상 (형광펜) 선택" aria-label="배경 색상 선택">
+                    <span class="color-picker-icon">🖌️</span>
+                    <span class="color-indicator-bar bg-bar" id="floatBackColorBar"></span>
+                </button>
+                <input type="color" id="floatBackColor" class="toolbar-color-picker visually-hidden-proxy" value="#ffffff" tabindex="-1">
+            </div>
+            <div class="toolbar-divider"></div>
+            <button type="button" id="floatBtnLink" class="toolbar-btn" title="링크 삽입/수정 (Ctrl+K)" aria-label="링크 삽입/수정">
+                <span class="toolbar-btn-icon" style="font-size: 14px; line-height: 1;">🔗</span>
+            </button>
+            <button type="button" id="floatBtnUnlink" class="toolbar-btn" title="링크 삭제" aria-label="링크 삭제">
+                <span class="toolbar-btn-icon" style="position: relative; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;">🔗<span style="position: absolute; color: #ef4444; font-size: 12px; font-weight: 900; bottom: -2px; right: -3px; line-height: 1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);">✕</span></span>
+            </button>
+
+            <!-- START: 색상 옵션 선택 팝오버 창 -->
+            <div id="textColorPickerPopover" class="text-color-popover" style="display: none;">
+                <div class="color-popover-header">
+                    <span class="color-popover-title" id="colorPopoverTitle">🎨 글자 색상 선택</span>
+                    <button type="button" class="color-popover-close-btn" id="colorPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
+                </div>
+                <button type="button" class="color-popover-quick-btn" id="colorPopoverQuickBtn">↺ 기본 색상으로 복원</button>
+                <div class="color-popover-grid" id="colorPopoverGrid"></div>
+                <div class="color-popover-custom">
+                    <div class="color-popover-custom-left">
+                        <span>직접 선택</span>
+                        <input type="color" id="popoverCustomColorPicker" class="color-popover-native-input" value="#ff0000" title="색상 선택기">
+                    </div>
+                    <input type="text" id="popoverCustomColorHex" class="color-popover-hex-input" value="#FF0000" maxlength="7" title="16진수 색상 코드">
+                    <button type="button" class="color-popover-apply-btn" id="popoverCustomApplyBtn">적용</button>
+                </div>
+            </div>
+            <!-- END: 색상 옵션 선택 팝오버 창 -->
+
+            <!-- START: 링크 삽입/수정 팝오버 창 -->
+            <div id="textLinkPopover" class="text-link-popover" style="display: none;">
+                <div class="link-popover-header">
+                    <span class="link-popover-title" id="linkPopoverTitle">🔗 링크 삽입/수정</span>
+                    <button type="button" class="link-popover-close-btn" id="linkPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
+                </div>
+                <div class="link-popover-body">
+                    <input type="text" id="linkPopoverUrlInput" class="link-popover-input" placeholder="https:// 또는 URL 입력" spellcheck="false" autocomplete="off">
+                    <div class="link-popover-actions">
+                        <button type="button" id="linkPopoverApplyBtn" class="link-popover-apply-btn">적용</button>
+                        <button type="button" id="linkPopoverRemoveBtn" class="link-popover-remove-btn" title="선택 영역 링크 제거" aria-label="선택 영역 링크 제거">링크 삭제</button>
+                    </div>
+                </div>
+            </div>
+            <!-- END: 링크 삽입/수정 팝오버 창 -->
+        </div>
         <!-- END: 텍스트 서식 플로팅 툴바 HTML 구조 -->
     </div>
 
@@ -6865,7 +7047,7 @@
         <span data-editable-type="flow-span" style="background-color: #cceeff;">새 흐름 단계</span>
     </div>
 
-    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1788952963291,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":8,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#ff0000","penLineWidth":"6","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#ff0000","penLineWidth":"6","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":786.5947265625,"y":16.43105125427246,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
+    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1789023465024,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":9,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":231,"y":215,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
     <script>
         // 스크립트 전역 변수 추가
         const COMPRESSION_THRESHOLD = 200 * 1024;
@@ -6987,6 +7169,12 @@
                             element.classList.remove('interacting', 'visible', 'collapsed', 'is-dragging');
                         }
                     });
+
+                    // 링크 팝오버 숨김 및 입력창 초기화 (N차 저장 무결성 보증)
+                    const clonedLinkPopover = clonedDoc.getElementById('textLinkPopover');
+                    if (clonedLinkPopover) clonedLinkPopover.style.display = 'none';
+                    const clonedLinkInput = clonedDoc.getElementById('linkPopoverUrlInput');
+                    if (clonedLinkInput) clonedLinkInput.value = '';
 
                     const clonedSelectionZoomOverlay = clonedDoc.getElementById('selectionZoomOverlay');
                     if (clonedSelectionZoomOverlay) {
@@ -7931,46 +8119,49 @@
                 let url = null;
                 let isPdf = false;
 
-                if (isFuture || !isWritten) {
-                    if (isSkipped) {
-                        weekLink.classList.add('skipped');
-                        weekLink.title = '수동으로 미작성 처리됨';
-                    } else {
-                        weekLink.classList.add('disabled');
-                        weekLink.title = isFuture ? '미래 회의록' : '작성되지 않은 회의록';
-                    }
-                }
-                else if (isSkipped) {
+                const isActualCurrent = (displayedYearInNav === actualCurrentYear && displayedMonthInNav === actualCurrentMonth && w === actualCurrentWeek);
+                const isCurrentDoc = (displayedYearInNav === documentYear && displayedMonthInNav === documentMonth && w === documentWeek);
+
+                const weekStartDate = new Date(displayedYearInNav, displayedMonthInNav - 1, (w - 1) * 7 + 1);
+                const cutoffDate = new Date(2025, 5, 15);
+                let pathTemplate = (weekStartDate >= cutoffDate)
+                    ? weeklyNavigatorConfig.filenameStructureTemplate
+                    : weeklyNavigatorConfig.pastFilenameStructureTemplate;
+                isPdf = pathTemplate.endsWith('.pdf');
+
+                url = (weeklyNavigatorConfig.baseURL || '') + pathTemplate
+                    .replace(/{YYYY}/g, displayedYearInNav)
+                    .replace(/{YY}/g, String(displayedYearInNav).slice(-2))
+                    .replace(/{MM}/g, String(displayedMonthInNav).padStart(2, '0'))
+                    .replace(/{M}/g, displayedMonthInNav)
+                    .replace(/{WW}/g, String(w).padStart(2, '0'))
+                    .replace(/{W}/g, w);
+
+                if (isSkipped) {
                     weekLink.classList.add('skipped');
                     weekLink.title = '수동으로 미작성 처리됨';
-                }
-                else {
-                    const weekStartDate = new Date(displayedYearInNav, displayedMonthInNav - 1, (w - 1) * 7 + 1);
-
-                    const cutoffDate = new Date(2025, 5, 15);
-                    let pathTemplate = (weekStartDate >= cutoffDate)
-                        ? weeklyNavigatorConfig.filenameStructureTemplate
-                        : weeklyNavigatorConfig.pastFilenameStructureTemplate;
-                    isPdf = pathTemplate.endsWith('.pdf');
-
-                    url = (weeklyNavigatorConfig.baseURL || '') + pathTemplate
-                        .replace(/{YYYY}/g, displayedYearInNav)
-                        .replace(/{YY}/g, String(displayedYearInNav).slice(-2))
-                        .replace(/{MM}/g, String(displayedMonthInNav).padStart(2, '0'))
-                        .replace(/{M}/g, displayedMonthInNav)
-                        .replace(/{WW}/g, String(w).padStart(2, '0'))
-                        .replace(/{W}/g, w);
-
+                } else if (isFuture) {
+                    weekLink.classList.add('disabled');
+                    weekLink.title = '미래 회의록';
+                } else if (isWritten) {
                     weekLink.classList.add('active');
                     weekLink.title = `${displayedYearInNav}년 ${displayedMonthInNav}월 ${w}주차 회의록 보기`;
+                } else {
+                    weekLink.classList.add('disabled');
+                    weekLink.title = `${displayedYearInNav}년 ${displayedMonthInNav}월 ${w}주차 회의록`;
+                }
 
-                    if (displayedYearInNav === actualCurrentYear && displayedMonthInNav === actualCurrentMonth && w === actualCurrentWeek) {
-                        weekLink.classList.add('actual-current');
+                if (isActualCurrent) {
+                    weekLink.classList.add('actual-current');
+                    if (weekLink.title) {
                         weekLink.title += ' (이번 주)';
+                    } else {
+                        weekLink.title = `${displayedYearInNav}년 ${displayedMonthInNav}월 ${w}주차 회의록 보기 (이번 주)`;
                     }
                 }
 
-                if (displayedYearInNav === documentYear && displayedMonthInNav === documentMonth && w === documentWeek) {
+                // 현재 열려있는 문서
+                if (isCurrentDoc) {
                     weekLink.classList.add('current');
                     weekLink.classList.remove('active', 'skipped', 'disabled');
                     weekLink.title = '현재 보고 있는 문서';
@@ -7993,7 +8184,9 @@
                         } else {
                             showMessage('비교할 수 없는 주차입니다(미작성 또는 미래).', 'warning');
                         }
-                    } else if (weekLink.classList.contains('active')) {
+                    } else if (weekLink.classList.contains('current')) {
+                        showMessage('현재 열려있는 회의록입니다.', 'info');
+                    } else if (weekLink.classList.contains('active') || (isActualCurrent && url)) {
                         window.open(url, '_blank', 'noopener,noreferrer');
                     }
                 };
@@ -8067,6 +8260,13 @@
             navContainer.style.display = 'flex';
             setNavCollapsedState(weeklyNavigatorConfig.isNavCollapsed, true);
             updateCompareModeInfo();
+
+            requestAnimationFrame(() => {
+                const targetWeekEl = weekLinksContainer.querySelector('.week-link.actual-current') || weekLinksContainer.querySelector('.week-link.current');
+                if (targetWeekEl && typeof targetWeekEl.scrollIntoView === 'function') {
+                    targetWeekEl.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+                }
+            });
         }
 
 
@@ -8146,14 +8346,53 @@
                 documentYear = year;
                 documentMonth = parseInt(match[2], 10);
                 documentWeek = parseInt(match[3], 10);
-                const savedDisplayedYear = Number(window.__SAVED_APP_STATE__?.displayedYearInNav);
-                const savedDisplayedMonth = Number(window.__SAVED_APP_STATE__?.displayedMonthInNav);
-                displayedYearInNav = Number.isInteger(savedDisplayedYear) ? savedDisplayedYear : documentYear;
-                displayedMonthInNav = Number.isInteger(savedDisplayedMonth) && savedDisplayedMonth >= 1 && savedDisplayedMonth <= 12
-                    ? savedDisplayedMonth
-                    : documentMonth;
+
+                // [무결성 보증] 실행 및 활성화 시 현재 기준 최신 연도와 월을 즉시 찾아서 네이비게이션 바에 표시
+                const now = new Date();
+                const actualWeekInfo = getWeekInfo(now);
+                displayedYearInNav = actualWeekInfo.year;
+                displayedMonthInNav = actualWeekInfo.month;
             }
+            weeklyNavigatorConfig.enabled = true;
+            setNavCollapsedState(false, true);
             renderWeeklyNavigator();
+        }
+
+        // 실행 및 활성화 시 현재 기준 최신 주차 네이비게이션 바 즉시 동기화 엔진
+        function syncWeeklyNavigatorToLatest(forceExpand = false) {
+            if (!weeklyNavigatorConfig || !weeklyNavigatorConfig.enabled) return;
+            const now = new Date();
+            const actualWeekInfo = getWeekInfo(now);
+            const latestYear = actualWeekInfo.year;
+            const latestMonth = actualWeekInfo.month;
+
+            let needsRender = false;
+            if (displayedYearInNav !== latestYear || displayedMonthInNav !== latestMonth) {
+                displayedYearInNav = latestYear;
+                displayedMonthInNav = latestMonth;
+                needsRender = true;
+            }
+
+            if (forceExpand && weeklyNavigatorConfig.isNavCollapsed) {
+                setNavCollapsedState(false);
+                needsRender = true;
+            }
+
+            if (needsRender) {
+                renderWeeklyNavigator();
+            }
+        }
+
+        if (!window.__weeklyNavActivationBound) {
+            window.__weeklyNavActivationBound = true;
+            window.addEventListener('focus', () => {
+                syncWeeklyNavigatorToLatest(false);
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    syncWeeklyNavigatorToLatest(false);
+                }
+            });
         }
 
         function initializeTabMenu() {
@@ -8410,11 +8649,16 @@ function hideTextFormatToolbar() {
             if (popover) {
                 popover.style.display = 'none';
             }
+            const linkPopover = document.getElementById('textLinkPopover');
+            if (linkPopover) {
+                linkPopover.style.display = 'none';
+            }
             if (typeof activeColorMode !== 'undefined') {
                 activeColorMode = null;
             }
             document.getElementById('floatFontColorBtn')?.classList.remove('active');
             document.getElementById('floatBackColorBtn')?.classList.remove('active');
+            document.getElementById('floatBtnLink')?.classList.remove('active');
             document.querySelectorAll('#textFormatToolbar, .text-format-toolbar').forEach(tb => {
                 tb.style.display = 'none';
                 tb.classList.remove('interacting');
@@ -8502,10 +8746,22 @@ function hideTextFormatToolbar() {
             document.getElementById('floatBtnUnderline')?.classList.toggle('active', isUnderline);
             document.getElementById('floatBtnStrike')?.classList.toggle('active', isStrike);
 
-            // 폰트 크기 및 색상 동기화
+            // 폰트 크기, 색상 및 링크 상태 동기화
             let parentEl = selection.anchorNode;
             if (parentEl && parentEl.nodeType === Node.TEXT_NODE) {
                 parentEl = parentEl.parentNode;
+            }
+
+            // 링크 활성화 상태 동기화
+            const currentAnchor = parentEl ? (parentEl.closest ? parentEl.closest('a') : null) : null;
+            const floatBtnLink = document.getElementById('floatBtnLink');
+            const floatBtnUnlink = document.getElementById('floatBtnUnlink');
+            if (floatBtnLink) {
+                floatBtnLink.classList.toggle('active', Boolean(currentAnchor));
+                floatBtnLink.title = currentAnchor ? `링크 수정 (${currentAnchor.getAttribute('href') || ''})` : '링크 삽입/수정 (Ctrl+K)';
+            }
+            if (floatBtnUnlink) {
+                floatBtnUnlink.style.opacity = currentAnchor ? '1' : '0.65';
             }
 
             if (parentEl) {
@@ -9879,7 +10135,7 @@ function hideTextFormatToolbar() {
 
         function handleDocumentClick(event) {
             const textToolbar = document.getElementById('textFormatToolbar');
-            const isInsideTextToolbar = Boolean(textToolbar && (textToolbar.contains(event.target) || (event.target.closest && event.target.closest('#textFormatToolbar, .text-format-toolbar, .text-color-popover'))));
+            const isInsideTextToolbar = Boolean(textToolbar && (textToolbar.contains(event.target) || (event.target.closest && event.target.closest('#textFormatToolbar, .text-format-toolbar, .text-color-popover, .text-link-popover'))));
 
             const isClickInsideAppOrGlobalControls = appContainer.contains(event.target) ||
                 (menuPanel && menuPanel.contains(event.target)) ||
@@ -10978,7 +11234,7 @@ function hideTextFormatToolbar() {
             const appSaveState = {
                 isTemplate: false, // 스냅샷 저장을 명시
                 initialTimestamp: initialTime.getTime(),
-                weeklyNavigatorConfig: weeklyNavigatorConfig,
+                weeklyNavigatorConfig: { ...weeklyNavigatorConfig, isNavCollapsed: false },
                 displayedYearInNav: displayedYearInNav,
                 displayedMonthInNav: displayedMonthInNav,
                 drawnStrokes: drawnStrokes,
@@ -11132,6 +11388,17 @@ function hideTextFormatToolbar() {
                 clonedFocusedEditorMasterToggle.textContent = '−';
                 clonedFocusedEditorMasterToggle.setAttribute('title', '전체 헤더 숨기기 (-)');
                 clonedFocusedEditorMasterToggle.setAttribute('aria-pressed', 'false');
+            }
+
+            // (10-1) [무결성 보증] 주간 네비게이션 바 클린 상태 보장 (접힘 해제 및 활성화 유지)
+            const clonedNavContainer = clonedDoc.getElementById('weeklyNavigatorContainer');
+            if (clonedNavContainer) {
+                clonedNavContainer.classList.remove('nav-collapsed');
+                const clonedNavToggle = clonedDoc.getElementById('navToggleBtn');
+                if (clonedNavToggle) {
+                    clonedNavToggle.textContent = '▲';
+                    clonedNavToggle.title = '네이비게이션 접기';
+                }
             }
 
             // (11) 드래그 초기화 상태 제거 → 재로드 시 이벤트 리스너 정상 재적용
@@ -12286,7 +12553,7 @@ function hideTextFormatToolbar() {
             document.addEventListener('selectionchange', handleSelectionChangeForToolbar);
             document.addEventListener('pointerdown', (event) => {
                 const toolbar = document.getElementById('textFormatToolbar');
-                if (toolbar && (toolbar.contains(event.target) || Boolean(event.target.closest && event.target.closest('#textFormatToolbar, .text-format-toolbar, .text-color-popover')))) return;
+                if (toolbar && (toolbar.contains(event.target) || Boolean(event.target.closest && event.target.closest('#textFormatToolbar, .text-format-toolbar, .text-color-popover, .text-link-popover')))) return;
                 const activeSurface = getActiveEditingSurface();
                 if (!activeSurface || !activeSurface.contains(event.target)) {
                     hideFloatingTextTools();
@@ -12717,6 +12984,292 @@ function hideTextFormatToolbar() {
                     applyStyleToSelection('backColor', e.target.value);
                 });
             }
+            // START: 링크 삽입/삭제 팝오버 시스템
+            function positionLinkPopover() {
+                const popover = document.getElementById('textLinkPopover');
+                const toolbar = document.getElementById('textFormatToolbar');
+                if (!popover || !toolbar) return;
+                const isMobile = window.innerWidth <= 600 || window.matchMedia('(max-width: 600px)').matches;
+                if (isMobile) {
+                    popover.classList.add('popover-above');
+                    return;
+                }
+                const tbRect = toolbar.getBoundingClientRect();
+                const popoverHeight = 120;
+                if (tbRect.top < popoverHeight + 20) {
+                    popover.classList.remove('popover-above');
+                } else {
+                    popover.classList.add('popover-above');
+                }
+            }
+
+            function openLinkPopover() {
+                const popover = document.getElementById('textLinkPopover');
+                const toolbar = document.getElementById('textFormatToolbar');
+                const urlInput = document.getElementById('linkPopoverUrlInput');
+                const removeBtn = document.getElementById('linkPopoverRemoveBtn');
+                if (!popover || !toolbar) return;
+
+                // 현재 선택 범위 보존
+                const sel = window.getSelection();
+                if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                    savedRange = sel.getRangeAt(0).cloneRange();
+                }
+
+                toolbar.classList.add('interacting');
+
+                // 기존 링크 감지 후 URL 자동 채움
+                let existingHref = '';
+                if (savedRange) {
+                    let node = savedRange.startContainer;
+                    if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                    const anchor = node ? (node.closest ? node.closest('a') : null) : null;
+                    if (anchor) {
+                        existingHref = anchor.getAttribute('href') || '';
+                    }
+                }
+                if (urlInput) {
+                    urlInput.value = existingHref;
+                }
+                if (removeBtn) {
+                    removeBtn.style.display = existingHref ? 'inline-flex' : 'none';
+                }
+
+                // 색상 팝오버 닫기
+                const colorPopover = document.getElementById('textColorPickerPopover');
+                if (colorPopover) colorPopover.style.display = 'none';
+
+                popover.style.display = 'block';
+                positionLinkPopover();
+
+                // 입력창 자동 포커스 (약간 지연 - 모바일 키보드 대응)
+                setTimeout(() => { if (urlInput) urlInput.focus(); }, 80);
+            }
+
+            function closeLinkPopover() {
+                const popover = document.getElementById('textLinkPopover');
+                const toolbar = document.getElementById('textFormatToolbar');
+                if (popover) popover.style.display = 'none';
+                if (toolbar) toolbar.classList.remove('interacting');
+                document.getElementById('floatBtnLink')?.classList.remove('active');
+            }
+
+            function applyLinkFromPopover() {
+                const urlInput = document.getElementById('linkPopoverUrlInput');
+                if (!urlInput) return;
+                let url = urlInput.value.trim();
+                if (!url) {
+                    // URL 비어있으면 링크 삭제로 처리
+                    removeLinkFromSelection();
+                    closeLinkPopover();
+                    return;
+                }
+                // 프로토콜 자동 보완
+                if (!/^[a-zA-Z][a-zA-Z0-9+\-.]*:\/\//.test(url) && !url.startsWith('mailto:') && !url.startsWith('#')) {
+                    url = 'https://' + url;
+                }
+                // 선택 범위 복원 후 링크 생성
+                const restored = restoreSelection();
+                if (!restored) {
+                    // savedRange가 없는 경우 현재 선택 사용
+                    const sel = window.getSelection();
+                    if (!sel || sel.isCollapsed) {
+                        closeLinkPopover();
+                        return;
+                    }
+                }
+                // execCommand로 링크 생성
+                document.execCommand('createLink', false, url);
+                // 생성된 링크 요소에 target, rel 속성 부여
+                const sel = window.getSelection();
+                if (sel && sel.rangeCount > 0) {
+                    let node = sel.anchorNode;
+                    if (node && node.nodeType === Node.TEXT_NODE) node = node.parentNode;
+                    const anchor = node ? (node.closest ? node.closest('a') : null) : null;
+                    if (anchor) {
+                        anchor.setAttribute('target', '_blank');
+                        anchor.setAttribute('rel', 'noopener noreferrer');
+                    } else {
+                        // 범위 내 모든 a 태그에 속성 부여
+                        try {
+                            const range = sel.getRangeAt(0);
+                            const frag = range.cloneContents();
+                            frag.querySelectorAll('a').forEach(a => {
+                                a.setAttribute('target', '_blank');
+                                a.setAttribute('rel', 'noopener noreferrer');
+                            });
+                        } catch(e) {}
+                        // 부모 방향으로 탐색
+                        const container = sel.getRangeAt(0).commonAncestorContainer;
+                        const parentEl = container.nodeType === Node.TEXT_NODE ? container.parentNode : container;
+                        if (parentEl) {
+                            parentEl.querySelectorAll('a[href]').forEach(a => {
+                                if (!a.getAttribute('target')) {
+                                    a.setAttribute('target', '_blank');
+                                    a.setAttribute('rel', 'noopener noreferrer');
+                                }
+                            });
+                        }
+                    }
+                }
+                closeLinkPopover();
+                setTimeout(updateFloatFormattingUI, 0);
+            }
+
+            function removeLinkFromSelection() {
+                const toolbar = document.getElementById('textFormatToolbar');
+                if (toolbar) toolbar.classList.add('interacting');
+                const restored = restoreSelection();
+                if (!restored) {
+                    const sel = window.getSelection();
+                    if (!sel || sel.rangeCount === 0) {
+                        if (toolbar) toolbar.classList.remove('interacting');
+                        return;
+                    }
+                }
+                // execCommand unlink
+                document.execCommand('unlink', false, null);
+                // 추가 보안: savedRange 내 남은 a 태그 언래핑
+                try {
+                    const sel2 = window.getSelection();
+                    if (sel2 && sel2.rangeCount > 0) {
+                        const range2 = sel2.getRangeAt(0);
+                        const container2 = range2.commonAncestorContainer;
+                        const parentEl2 = container2.nodeType === Node.TEXT_NODE ? container2.parentNode : container2;
+                        if (parentEl2) {
+                            parentEl2.querySelectorAll('a').forEach(a => {
+                                const parent = a.parentNode;
+                                if (parent) {
+                                    while (a.firstChild) parent.insertBefore(a.firstChild, a);
+                                    parent.removeChild(a);
+                                }
+                            });
+                        }
+                    }
+                } catch(e) {}
+                if (toolbar) toolbar.classList.remove('interacting');
+                setTimeout(updateFloatFormattingUI, 0);
+            }
+
+            // floatBtnLink 클릭 이벤트
+            const floatBtnLink = document.getElementById('floatBtnLink');
+            if (floatBtnLink) {
+                floatBtnLink.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                        savedRange = sel.getRangeAt(0).cloneRange();
+                    }
+                });
+                floatBtnLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const popover = document.getElementById('textLinkPopover');
+                    if (popover && popover.style.display !== 'none') {
+                        closeLinkPopover();
+                    } else {
+                        openLinkPopover();
+                    }
+                });
+            }
+
+            // floatBtnUnlink 클릭 이벤트
+            const floatBtnUnlink = document.getElementById('floatBtnUnlink');
+            if (floatBtnUnlink) {
+                floatBtnUnlink.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    const sel = window.getSelection();
+                    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+                        savedRange = sel.getRangeAt(0).cloneRange();
+                    }
+                });
+                floatBtnUnlink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeLinkFromSelection();
+                });
+            }
+
+            // 링크 팝오버 내부 버튼 이벤트
+            const linkPopoverApplyBtn = document.getElementById('linkPopoverApplyBtn');
+            if (linkPopoverApplyBtn) {
+                linkPopoverApplyBtn.addEventListener('mousedown', (e) => e.preventDefault());
+                linkPopoverApplyBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    applyLinkFromPopover();
+                });
+            }
+
+            const linkPopoverRemoveBtn = document.getElementById('linkPopoverRemoveBtn');
+            if (linkPopoverRemoveBtn) {
+                linkPopoverRemoveBtn.addEventListener('mousedown', (e) => e.preventDefault());
+                linkPopoverRemoveBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeLinkFromSelection();
+                    closeLinkPopover();
+                });
+            }
+
+            const linkPopoverCloseBtn = document.getElementById('linkPopoverCloseBtn');
+            if (linkPopoverCloseBtn) {
+                linkPopoverCloseBtn.addEventListener('mousedown', (e) => e.preventDefault());
+                linkPopoverCloseBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeLinkPopover();
+                });
+            }
+
+            const linkPopoverUrlInput = document.getElementById('linkPopoverUrlInput');
+            if (linkPopoverUrlInput) {
+                linkPopoverUrlInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyLinkFromPopover();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        closeLinkPopover();
+                    }
+                });
+                // 입력창 클릭/포커스 시 interacting 유지
+                linkPopoverUrlInput.addEventListener('focus', () => {
+                    const toolbar = document.getElementById('textFormatToolbar');
+                    if (toolbar) toolbar.classList.add('interacting');
+                });
+            }
+
+            // Ctrl+K 단축키: 텍스트 선택 상태에서 링크 팝오버 열기
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    const toolbar = document.getElementById('textFormatToolbar');
+                    if (toolbar && toolbar.style.display !== 'none') {
+                        e.preventDefault();
+                        const popover = document.getElementById('textLinkPopover');
+                        if (popover && popover.style.display !== 'none') {
+                            closeLinkPopover();
+                        } else {
+                            openLinkPopover();
+                        }
+                    }
+                }
+            });
+
+            // syncFloatingTextToolbarVisibility에서 링크 팝오버 열림 상태도 interacting으로 간주
+            const _origSyncVisibility = window.syncFloatingTextToolbarVisibility;
+            window.syncFloatingTextToolbarVisibility = function() {
+                const toolbar = document.getElementById('textFormatToolbar');
+                const linkPop = document.getElementById('textLinkPopover');
+                const isLinkPopOpen = linkPop && linkPop.style.display !== 'none';
+                if (isLinkPopOpen && toolbar) {
+                    toolbar.classList.add('interacting');
+                    return;
+                }
+                if (_origSyncVisibility) _origSyncVisibility();
+            };
+
+            // END: 링크 삽입/삭제 팝오버 시스템
             // END: 색상 선택 팝오버 및 실시간 즉시 반영 시스템
         }
         // --- END: 상황별 미니 툴바 기능 ---
@@ -18014,46 +18567,4 @@ function ensureImageWrapperStructure(wrapper) {
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
             else mount();
         })();
-    </script>
-<div id="textFormatToolbar" class="text-format-toolbar" style="display: none; position: absolute; inset: 898.371px auto auto 79.5077px; z-index: 32005;">
-            <button id="floatBtnBold" class="toolbar-btn" data-command="bold" title="굵게" type="button" aria-label="굵게"><b>B</b></button>
-            <button id="floatBtnItalic" class="toolbar-btn" data-command="italic" title="기울임" type="button" aria-label="기울임"><i>I</i></button>
-            <button id="floatBtnUnderline" class="toolbar-btn" data-command="underline" title="밑줄" type="button" aria-label="밑줄"><u>U</u></button>
-            <button id="floatBtnStrike" class="toolbar-btn" data-command="strikeThrough" title="취소선" type="button" aria-label="취소선"><s>S</s></button>
-            <div class="toolbar-divider"></div>
-            <input type="number" id="floatFontSize" class="toolbar-size-input" min="10" max="100" value="16" title="글꼴 크기">
-            <div class="toolbar-divider"></div>
-            <div class="color-picker-wrapper" title="글자 색상">
-                <button type="button" class="color-picker-trigger" id="floatFontColorBtn" title="글자 색상 선택" aria-label="글자 색상 선택">
-                    <span class="color-picker-icon">🎨</span>
-                    <span class="color-indicator-bar" id="floatFontColorBar" style="background-color: rgb(0, 0, 0);"></span>
-                </button>
-                <input type="color" id="floatFontColor" class="toolbar-color-picker visually-hidden-proxy" value="#000000" tabindex="-1">
-            </div>
-            <div class="color-picker-wrapper" title="배경 색상 (형광펜)">
-                <button type="button" class="color-picker-trigger" id="floatBackColorBtn" title="배경 색상 (형광펜) 선택" aria-label="배경 색상 선택">
-                    <span class="color-picker-icon">🖌️</span>
-                    <span class="color-indicator-bar bg-bar" id="floatBackColorBar" style="background-color: rgb(255, 255, 255);"></span>
-                </button>
-                <input type="color" id="floatBackColor" class="toolbar-color-picker visually-hidden-proxy" value="#ffffff" tabindex="-1">
-            </div>
-
-            <!-- START: 색상 옵션 선택 팝오버 창 -->
-            <div id="textColorPickerPopover" class="text-color-popover popover-above" style="display: none;">
-                <div class="color-popover-header">
-                    <span class="color-popover-title" id="colorPopoverTitle">🎨 글자 색상 선택</span>
-                    <button type="button" class="color-popover-close-btn" id="colorPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
-                </div>
-                <button type="button" class="color-popover-quick-btn" id="colorPopoverQuickBtn" data-color="#000000">↺ 기본 글자색 (검정) 복원</button>
-                <div class="color-popover-grid" id="colorPopoverGrid"><button type="button" class="color-swatch-btn" title="기본 검정" aria-label="기본 검정" data-color="#111827" style="background-color: rgb(17, 24, 39);"></button><button type="button" class="color-swatch-btn" title="진회색" aria-label="진회색" data-color="#4b5563" style="background-color: rgb(75, 85, 99);"></button><button type="button" class="color-swatch-btn" title="밝은 회색" aria-label="밝은 회색" data-color="#9ca3af" style="background-color: rgb(156, 163, 175);"></button><button type="button" class="color-swatch-btn" title="선명한 빨강" aria-label="선명한 빨강" data-color="#ef4444" style="background-color: rgb(239, 68, 68);"></button><button type="button" class="color-swatch-btn" title="주황" aria-label="주황" data-color="#f97316" style="background-color: rgb(249, 115, 22);"></button><button type="button" class="color-swatch-btn" title="호박/갈색" aria-label="호박/갈색" data-color="#d97706" style="background-color: rgb(217, 119, 6);"></button><button type="button" class="color-swatch-btn" title="초록" aria-label="초록" data-color="#10b981" style="background-color: rgb(16, 185, 129);"></button><button type="button" class="color-swatch-btn" title="청록" aria-label="청록" data-color="#06b6d4" style="background-color: rgb(6, 182, 212);"></button><button type="button" class="color-swatch-btn" title="파랑" aria-label="파랑" data-color="#2563eb" style="background-color: rgb(37, 99, 235);"></button><button type="button" class="color-swatch-btn" title="남색" aria-label="남색" data-color="#4f46e5" style="background-color: rgb(79, 70, 229);"></button><button type="button" class="color-swatch-btn" title="보라" aria-label="보라" data-color="#8b5cf6" style="background-color: rgb(139, 92, 246);"></button><button type="button" class="color-swatch-btn" title="분홍/자주" aria-label="분홍/자주" data-color="#ec4899" style="background-color: rgb(236, 72, 153);"></button></div>
-                <div class="color-popover-custom">
-                    <div class="color-popover-custom-left">
-                        <span>직접 선택</span>
-                        <input type="color" id="popoverCustomColorPicker" class="color-popover-native-input" value="#ff0000" title="색상 선택기">
-                    </div>
-                    <input type="text" id="popoverCustomColorHex" class="color-popover-hex-input" value="#FF0000" maxlength="7" title="16진수 색상 코드">
-                    <button type="button" class="color-popover-apply-btn" id="popoverCustomApplyBtn">적용</button>
-                </div>
-            </div>
-            <!-- END: 색상 옵션 선택 팝오버 창 -->
-        </div></body></html>
+    </script></body></html>
