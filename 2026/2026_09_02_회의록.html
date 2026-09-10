@@ -5523,68 +5523,187 @@
         }
 
         @media (max-width: 600px) and (orientation: portrait) {
+            /* 1. 제목 타이틀 줄바꿈 없이 한 줄 표시 및 자동 조절 */
+            h1#page-title {
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                font-size: clamp(11.5px, 3.5vw, 14.5px) !important;
+                padding: 9px 80px 9px 8px !important;
+                line-height: 1.3 !important;
+                letter-spacing: -0.5px !important;
+                box-sizing: border-box !important;
+            }
+
+            /* 2. 시계 및 타이머 상단 우측 슬림화 */
+            #time-display-container {
+                top: 5px !important;
+                right: 6px !important;
+                padding: 3px 5px !important;
+                font-size: 9px !important;
+                max-width: 72px !important;
+                gap: 2px !important;
+                line-height: 1.15 !important;
+                border-radius: 6px !important;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+            }
+
+            /* 3. 주간 네비게이션 바 컴팩트 최적화 (높이 84px -> 약 50px 축소) */
+            #weeklyNavigatorContainer {
+                padding: 3px 6px !important;
+                gap: 2px !important;
+                min-height: auto !important;
+            }
+
+            #weeklyNavigatorContent {
+                gap: 2px 0 !important;
+            }
+
+            .navigator-year-controls {
+                gap: 1px !important;
+                margin-left: 1px !important;
+            }
+
+            .navigator-month-controls {
+                gap: 1px !important;
+                margin-left: 6px !important;
+            }
+
+            .navigator-controls .current-display-span {
+                font-size: 0.85em !important;
+                min-width: 32px !important;
+                margin: 0 1px !important;
+            }
+
+            #weeklyNavigatorContainer button,
+            #weeklyNavigatorContainer #prevYearBtn,
+            #weeklyNavigatorContainer #nextYearBtn,
+            #weeklyNavigatorContainer #prevMonthBtn,
+            #weeklyNavigatorContainer #nextMonthBtn {
+                min-width: 20px !important;
+                min-height: 20px !important;
+                width: auto !important;
+                height: 20px !important;
+                padding: 1px 3px !important;
+                font-size: 0.72em !important;
+            }
+
+            #navToggleBtn,
+            #weeklyNavigatorContainer #navToggleBtn {
+                top: 3px !important;
+                right: 6px !important;
+                width: 20px !important;
+                height: 20px !important;
+                min-width: 20px !important;
+                min-height: 20px !important;
+                font-size: 0.7em !important;
+            }
+
+            #weekLinksContainer {
+                padding: 2px 1px !important;
+                gap: 2px !important;
+            }
+
+            #weekLinksContainer .week-link {
+                padding: 2.5px 6px !important;
+                font-size: 0.75em !important;
+                margin: 1px !important;
+                border-radius: 4px !important;
+            }
+
+            #weekLinksContainer .week-link.actual-current {
+                font-size: 0.84em !important;
+                padding: 2.5px 7px !important;
+            }
+
+            #weekLinksContainer .week-link.current {
+                font-size: 0.8em !important;
+                padding: 2.5px 7px !important;
+            }
+
+            /* 4. 하단 셔터 컨트롤 (pointer-events: auto 활성화로 클릭 먹통 완벽 해결) */
             .column-shutter-controls {
-                inset: auto auto max(8px, env(safe-area-inset-bottom)) 50%;
-                width: min(calc(100vw - 24px), 360px);
-                padding: 6px;
-                box-sizing: border-box;
-                border: 1px solid rgba(128, 158, 151, 0.75);
-                border-radius: 15px;
-                background: rgba(246, 250, 249, 0.96);
-                box-shadow: 0 7px 24px rgba(17, 61, 53, 0.2);
-                display: flex;
-                gap: 7px;
-                transform: translateX(-50%);
-                backdrop-filter: blur(8px);
+                inset: auto auto max(8px, env(safe-area-inset-bottom)) 50% !important;
+                width: min(calc(100vw - 20px), 360px) !important;
+                padding: 5px 6px !important;
+                box-sizing: border-box !important;
+                border: 1px solid rgba(128, 158, 151, 0.75) !important;
+                border-radius: 15px !important;
+                background: rgba(246, 250, 249, 0.98) !important;
+                box-shadow: 0 7px 24px rgba(17, 61, 53, 0.25) !important;
+                display: flex !important;
+                gap: 6px !important;
+                transform: translateX(-50%) !important;
+                backdrop-filter: blur(8px) !important;
+                pointer-events: auto !important;
+                z-index: 20020 !important;
+            }
+
+            .column-shutter-toggle {
+                position: static !important;
+                flex: 1 1 0 !important;
+                width: auto !important;
+                min-height: 42px !important;
+                padding: 6px 10px !important;
+                border-radius: 10px !important;
+                flex-direction: row !important;
+                transform: none !important;
+                pointer-events: auto !important;
+                touch-action: manipulation !important;
+                cursor: pointer !important;
+                font-size: 11.5px !important;
+            }
+
+            .column-shutter-icon {
+                font-size: 20px !important;
+            }
+
+            /* 5. 확대 편집 버튼 모바일 세로 모드 최상위 표출 및 터치 친화 스타일 */
+            #openFocusedEditorBtn {
+                z-index: 32060 !important;
+            }
+            #openFocusedEditorBtn.visible {
+                z-index: 32060 !important;
+                min-height: 38px !important;
+                padding: 6px 12px !important;
+                font-size: 12px !important;
+                border-radius: 18px !important;
+                box-shadow: 0 4px 16px rgba(13, 148, 136, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+                touch-action: manipulation !important;
             }
 
             /* 하단 셔터와 오른쪽 플로팅 도구의 터치 영역이 겹치지 않도록 동일 간격으로 이동 */
             .floating-menu-icon {
-                bottom: max(80px, calc(env(safe-area-inset-bottom) + 80px));
+                bottom: max(76px, calc(env(safe-area-inset-bottom) + 76px));
             }
 
             #compareModeToggleBtn {
-                bottom: max(126px, calc(env(safe-area-inset-bottom) + 126px));
+                bottom: max(120px, calc(env(safe-area-inset-bottom) + 120px));
             }
 
             .fullscreen-btn-class {
-                bottom: max(172px, calc(env(safe-area-inset-bottom) + 172px));
+                bottom: max(164px, calc(env(safe-area-inset-bottom) + 164px));
             }
 
             #multiZoomTriggerBtn {
-                bottom: max(218px, calc(env(safe-area-inset-bottom) + 218px));
+                bottom: max(208px, calc(env(safe-area-inset-bottom) + 208px));
             }
 
             #annotationDisplayToggleBtn {
-                bottom: max(264px, calc(env(safe-area-inset-bottom) + 264px));
+                bottom: max(252px, calc(env(safe-area-inset-bottom) + 252px));
             }
 
             #annotationSettingsToggleBtn {
-                bottom: max(310px, calc(env(safe-area-inset-bottom) + 310px));
+                bottom: max(296px, calc(env(safe-area-inset-bottom) + 296px));
             }
 
             #memoAnnotationToggleBtn {
-                bottom: max(356px, calc(env(safe-area-inset-bottom) + 356px));
-            }
-
-            .column-shutter-toggle {
-                position: static;
-                flex: 1 1 0;
-                width: auto;
-                min-height: 44px;
-                padding: 7px 12px;
-                border-radius: 10px;
-                flex-direction: row;
-                transform: none;
-            }
-
-            .column-shutter-icon {
-                font-size: 23px;
+                bottom: max(340px, calc(env(safe-area-inset-bottom) + 340px));
             }
 
             #columnShutterEmptyState {
-                min-height: 220px;
-                padding: 28px 16px;
+                min-height: 200px;
+                padding: 24px 14px;
             }
         }
 
@@ -6395,7 +6514,7 @@
         
 
         <!-- START: 개선된 탭 기반 패널 구조 -->
-        <div class="floating-panel" id="menuPanel" style="display: none; inset: 215px auto auto 231px; width: 350px; height: 500px;">
+        <div class="floating-panel" id="menuPanel" style="display: none; inset: 147px auto auto 103px; width: 350px; height: 500px;">
             <div class="panel-header" title="드래그하여 메뉴 위치 이동">
                 <div class="panel-title-group" style="display:flex; align-items:center; gap:8px;">
                     <span class="drag-handle-grip" style="font-size:16px; opacity:0.85; cursor:move;" aria-hidden="true">⋮⋮</span>
@@ -7047,7 +7166,7 @@
         <span data-editable-type="flow-span" style="background-color: #cceeff;">새 흐름 단계</span>
     </div>
 
-    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1789023465024,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":9,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":231,"y":215,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
+    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1789037628495,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":9,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":103,"y":147,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
     <script>
         // 스크립트 전역 변수 추가
         const COMPRESSION_THRESHOLD = 200 * 1024;
@@ -7175,6 +7294,15 @@
                     if (clonedLinkPopover) clonedLinkPopover.style.display = 'none';
                     const clonedLinkInput = clonedDoc.getElementById('linkPopoverUrlInput');
                     if (clonedLinkInput) clonedLinkInput.value = '';
+
+                    // 확대 편집 버튼 숨김 및 위치 스타일 초기화 (N차 저장 무결성 보증)
+                    const clonedFocusedEditorBtn = clonedDoc.getElementById('openFocusedEditorBtn');
+                    if (clonedFocusedEditorBtn) {
+                        clonedFocusedEditorBtn.classList.remove('visible');
+                        clonedFocusedEditorBtn.style.display = 'none';
+                        clonedFocusedEditorBtn.style.left = '';
+                        clonedFocusedEditorBtn.style.top = '';
+                    }
 
                     const clonedSelectionZoomOverlay = clonedDoc.getElementById('selectionZoomOverlay');
                     if (clonedSelectionZoomOverlay) {
@@ -7371,10 +7499,27 @@
                     const handleAction = event => {
                         const button = event.target.closest('[data-column-shutter-action]');
                         if (!button) return;
+                        event.preventDefault();
                         dispatch(button.dataset.columnShutterAction);
                     };
-                    elements.controls.addEventListener('click', handleAction);
-                    elements.emptyState.addEventListener('click', handleAction);
+                    elements.controls?.addEventListener('click', handleAction);
+                    elements.emptyState?.addEventListener('click', handleAction);
+
+                    // 모바일 및 터치 환경을 위한 개별 버튼 직접 바인딩 (이벤트 유실 원천 차단)
+                    if (elements.lastButton) {
+                        elements.lastButton.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dispatch('toggle-last');
+                        });
+                    }
+                    if (elements.thisButton) {
+                        elements.thisButton.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dispatch('toggle-this');
+                        });
+                    }
                     isBound = true;
                 }
 
@@ -7393,6 +7538,16 @@
                 view.render(state, true);
                 requestAnimationFrame(() => {
                     if (typeof setupAnnotationCanvas === 'function') setupAnnotationCanvas();
+                    // 모바일 환경에서 컬럼 펼침 시 해당 컬럼으로 부드럽게 안내
+                    if (window.innerWidth <= 768) {
+                        if (action === 'toggle-this' && state.thisWeekOpen) {
+                            const thisCol = document.getElementById('thisWeekColumn');
+                            if (thisCol) thisCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        } else if (action === 'toggle-last' && state.lastWeekOpen) {
+                            const lastCol = document.getElementById('lastWeekColumn');
+                            if (lastCol) lastCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
                 });
             }
 
@@ -15540,7 +15695,15 @@ function ensureImageWrapperStructure(wrapper) {
         let focusedEditorButtonWasDragged = false;
 
         function getFocusedEditableTarget(source) {
-            const editable = source?.closest?.('[contenteditable="true"]');
+            if (!source) return null;
+            let editable = source.closest?.('[contenteditable="true"]');
+            if (!editable) {
+                // 모바일 터치 대응: 부모 카드/블록을 터치했을 때 내부의 첫 번째 contenteditable 요소 자동 감지
+                const block = source.closest?.('.action-item-block, .insert-area-wrapper, .item-group, .section-header, .column-title, [data-editable-type]');
+                if (block) {
+                    editable = block.querySelector?.('[contenteditable="true"]') || (block.isContentEditable ? block : null);
+                }
+            }
             if (!editable || !appContainer.contains(editable)) return null;
             if (editable.classList.contains('image-annotation-text')) return null;
             if (editable.dataset.editableType === 'button-text-label') return null;
@@ -15612,19 +15775,34 @@ function ensureImageWrapperStructure(wrapper) {
         function positionFocusedEditorButton(button = document.getElementById('openFocusedEditorBtn')) {
             if (!button) return;
             requestAnimationFrame(() => {
-                if (focusedEditorTarget) {
+                if (focusedEditorTarget && focusedEditorTarget.isConnected) {
                     const rect = focusedEditorTarget.getBoundingClientRect();
                     const btnRect = button.getBoundingClientRect();
                     const btnWidth = btnRect.width || button.offsetWidth || 96;
                     const btnHeight = btnRect.height || button.offsetHeight || 42;
-                    
-                    // Position to the left of the input window with 10px spacing
-                    let left = rect.left - btnWidth - 10;
-                    let top = rect.top + (rect.height - btnHeight) / 2;
-                    
-                    // If not enough space on left, position to the right
-                    if (left < 10) {
-                        left = rect.right + 10;
+                    const isMobile = window.innerWidth <= 600 || window.matchMedia('(max-width: 600px) and (orientation: portrait)').matches;
+
+                    let left, top;
+                    if (isMobile) {
+                        // 모바일 세로 모드: 입력창/블록의 우측 상단 바로 위 또는 안전한 영역에 배치
+                        const block = focusedEditorTarget.closest('.action-item-block, .insert-area-wrapper, .item-group, .section-block') || focusedEditorTarget;
+                        const blockRect = block.getBoundingClientRect();
+                        left = blockRect.right - btnWidth - 4;
+                        top = blockRect.top - btnHeight - 4;
+                        const navEl = document.getElementById('weeklyNavigatorContainer');
+                        const navBottom = (navEl ? navEl.getBoundingClientRect().bottom : 78) + 6;
+                        if (top < navBottom) {
+                            top = Math.max(navBottom, blockRect.bottom + 4);
+                        }
+                    } else {
+                        // Position to the left of the input window with 10px spacing
+                        left = rect.left - btnWidth - 10;
+                        top = rect.top + (rect.height - btnHeight) / 2;
+                        
+                        // If not enough space on left, position to the right
+                        if (left < 10) {
+                            left = rect.right + 10;
+                        }
                     }
                     
                     const pos = clampFocusedEditorButtonPosition(button, left, top);
@@ -16760,10 +16938,31 @@ function ensureImageWrapperStructure(wrapper) {
                 if (target && !overlay?.classList.contains('active')) showFocusedEditorButton(target);
             }, true);
 
+            // 모바일 터치 환경 즉각 감지
+            document.addEventListener('touchstart', e => {
+                if (e.target.closest?.('#openFocusedEditorBtn, #focusedEditorOverlay, .annotation-settings-modal, .zoom-editor-toolbar')) return;
+                const target = getFocusedEditableTarget(e.target);
+                if (target && !overlay?.classList.contains('active')) {
+                    showFocusedEditorButton(target);
+                }
+            }, { passive: true });
+
             document.addEventListener('mousedown', e => {
-                if (e.target.closest('#openFocusedEditorBtn, #focusedEditorOverlay')) return;
+                if (e.target.closest('#openFocusedEditorBtn, #focusedEditorOverlay, .annotation-settings-modal, .zoom-editor-toolbar')) return;
                 if (!getFocusedEditableTarget(e.target)) hideFocusedEditorButton();
             });
+
+            // 스크롤 및 모바일 가상 키보드/뷰포트 변화 시 확대 편집 버튼 위치 실시간 추적
+            window.addEventListener('scroll', () => {
+                const btn = document.getElementById('openFocusedEditorBtn');
+                if (btn && btn.classList.contains('visible')) positionFocusedEditorButton(btn);
+            }, { passive: true });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    const btn = document.getElementById('openFocusedEditorBtn');
+                    if (btn && btn.classList.contains('visible')) positionFocusedEditorButton(btn);
+                });
+            }
 
             document.addEventListener('keydown', e => {
                 const isOverlayActive = overlay?.classList.contains('active');
