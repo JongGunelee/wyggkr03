@@ -4154,25 +4154,83 @@
             }
 
             h1#page-title {
-                font-size: 1.22em;
-                padding: 12px 14px;
-                padding-right: 116px;
-                line-height: 1.35;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                font-size: clamp(11.5px, 3.4vw, 15px) !important;
+                padding: 8px 145px 8px 10px !important;
+                line-height: 1.3 !important;
+                letter-spacing: -0.5px !important;
+                box-sizing: border-box !important;
             }
 
             #time-display-container {
-                top: 8px;
-                right: 8px;
-                gap: 6px;
-                padding: 4px 7px;
-                font-size: 11px;
-                max-width: 104px;
-                flex-wrap: wrap;
-                justify-content: flex-end;
+                top: 5px !important;
+                right: 6px !important;
+                padding: 3px 6px !important;
+                font-size: 10px !important;
+                max-width: 140px !important;
+                width: max-content !important;
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+                gap: 1px 3px !important;
+                line-height: 1.15 !important;
+                border-radius: 6px !important;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                z-index: 10006 !important;
+                box-sizing: border-box !important;
+            }
+
+            #time-display-container .icon-timer {
+                order: 1 !important;
+                font-size: 10px !important;
+                line-height: 1 !important;
+            }
+
+            #time-display-container #initial-time {
+                order: 2 !important;
+                font-size: 10.5px !important;
+                font-weight: 600 !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
             }
 
             #time-display-container .time-separator {
-                display: none;
+                display: inline-block !important;
+                order: 3 !important;
+                width: 1px !important;
+                height: 9px !important;
+                background: #cbd5e1 !important;
+                margin: 0 1px !important;
+            }
+
+            #time-display-container #current-time {
+                order: 4 !important;
+                font-size: 10.5px !important;
+                font-weight: 600 !important;
+                white-space: nowrap !important;
+                line-height: 1 !important;
+            }
+
+            #time-display-container .icon-date {
+                display: none !important;
+            }
+
+            #time-display-container #current-date {
+                order: 5 !important;
+                flex-basis: 100% !important;
+                text-align: right !important;
+                font-size: 9.5px !important;
+                color: #64748b !important;
+                white-space: nowrap !important;
+                letter-spacing: -0.2px !important;
+                font-weight: 500 !important;
+                line-height: 1.1 !important;
+                margin-top: 1px !important;
             }
 
             #weeklyNavigatorContainer {
@@ -5522,30 +5580,49 @@
             }
         }
 
-        @media (max-width: 600px) and (orientation: portrait) {
+        @media (max-width: 768px) {
             /* 1. 제목 타이틀 줄바꿈 없이 한 줄 표시 및 자동 조절 */
             h1#page-title {
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
-                font-size: clamp(11.5px, 3.5vw, 14.5px) !important;
-                padding: 9px 80px 9px 8px !important;
+                font-size: clamp(11.5px, 3.4vw, 15px) !important;
+                padding: 8px 108px 8px 10px !important;
                 line-height: 1.3 !important;
                 letter-spacing: -0.5px !important;
                 box-sizing: border-box !important;
             }
 
-            /* 2. 시계 및 타이머 상단 우측 슬림화 */
+            /* 2. 시계 및 타이머 상단 우측 슬림화 및 꺾임 없는 2단/1단 정렬 */
             #time-display-container {
-                top: 5px !important;
+                top: 6px !important;
                 right: 6px !important;
-                padding: 3px 5px !important;
-                font-size: 9px !important;
-                max-width: 72px !important;
-                gap: 2px !important;
+                padding: 3px 6px !important;
+                font-size: 10px !important;
+                max-width: none !important;
+                width: auto !important;
+                display: inline-flex !important;
+                flex-direction: column !important;
+                align-items: flex-end !important;
+                justify-content: center !important;
+                gap: 1px !important;
                 line-height: 1.15 !important;
                 border-radius: 6px !important;
-                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                z-index: 10006 !important;
+            }
+
+            #time-display-container .time-separator {
+                display: none !important;
+            }
+
+            #time-display-container #current-date {
+                font-size: 9.5px !important;
+                color: #64748b !important;
+                white-space: nowrap !important;
+                letter-spacing: -0.3px !important;
+                font-weight: 500 !important;
             }
 
             /* 3. 주간 네비게이션 바 컴팩트 최적화 (높이 84px -> 약 50px 축소) */
@@ -5621,9 +5698,9 @@
                 padding: 2.5px 7px !important;
             }
 
-            /* 4. 하단 셔터 컨트롤 (pointer-events: auto 활성화로 클릭 먹통 완벽 해결) */
+            /* 4. 하단 셔터 컨트롤 (pointer-events: auto 활성화 및 안드로이드 네비바 간격 확보) */
             .column-shutter-controls {
-                inset: auto auto max(8px, env(safe-area-inset-bottom)) 50% !important;
+                inset: auto auto max(14px, calc(env(safe-area-inset-bottom) + 10px)) 50% !important;
                 width: min(calc(100vw - 20px), 360px) !important;
                 padding: 5px 6px !important;
                 box-sizing: border-box !important;
@@ -5660,10 +5737,10 @@
 
             /* 5. 확대 편집 버튼 모바일 세로 모드 최상위 표출 및 터치 친화 스타일 */
             #openFocusedEditorBtn {
-                z-index: 32060 !important;
+                z-index: 99999 !important;
             }
             #openFocusedEditorBtn.visible {
-                z-index: 32060 !important;
+                z-index: 99999 !important;
                 min-height: 38px !important;
                 padding: 6px 12px !important;
                 font-size: 12px !important;
@@ -5850,7 +5927,7 @@
 #openFocusedEditorBtn.visible {
     display: inline-flex !important;
     position: fixed !important;
-    z-index: 10008 !important;
+    z-index: 99999 !important;
     padding: 6px 12px !important;
     background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%) !important;
     color: #ffffff !important;
@@ -6041,7 +6118,7 @@
             <div class="time-separator"></div>
             <span id="current-time">AM 12:00</span>
             <span class="icon-date"></span>
-            <span id="current-date" title="날짜 클릭 시 달력 열기" class="flatpickr-input">YY-MM-DD</span>
+            <span id="current-date" title="날짜 클릭 시 달력 열기" class="flatpickr-input">YYYY-MM-DD</span>
         </div>
 
         <button class="exit-true-fullscreen-btn" id="exitTrueFullscreenBtnActual" title="기본 보기로 돌아가기" type="button" aria-label="기본 보기로 돌아가기">✕</button>
@@ -6514,7 +6591,7 @@
         
 
         <!-- START: 개선된 탭 기반 패널 구조 -->
-        <div class="floating-panel" id="menuPanel" style="display: none; inset: 147px auto auto 103px; width: 350px; height: 500px;">
+        <div class="floating-panel" id="menuPanel" style="display: none; inset: 133px auto auto 116px; width: 350px; height: 500px;">
             <div class="panel-header" title="드래그하여 메뉴 위치 이동">
                 <div class="panel-title-group" style="display:flex; align-items:center; gap:8px;">
                     <span class="drag-handle-grip" style="font-size:16px; opacity:0.85; cursor:move;" aria-hidden="true">⋮⋮</span>
@@ -6690,7 +6767,7 @@
                         <div class="info-item"><strong>스타일:</strong> <code id="info-fontStyle">normal</code></div>
                         <div class="info-item"><strong>장식:</strong> <code id="info-textDecoration">none</code></div>
                         <div class="info-item"><strong>글자색:</strong> <span><span class="color-preview" id="info-fontColor-preview" style="background-color: rgb(43, 43, 43);"></span><code id="info-fontColor">#2B2B2B</code></span></div>
-                        <div class="info-item"><strong>배경색:</strong> <span><span class="color-preview" id="info-backColor-preview" style="background-color: rgb(255, 255, 255);"></span><code id="info-backColor">#FFFFFF</code></span></div>
+                        <div class="info-item"><strong>배경색:</strong> <span><span class="color-preview" id="info-backColor-preview" style="background-color: rgb(255, 255, 255);"></span><code id="info-backColor">#ffffff</code></span></div>
                     </div>
                 </div>
 
@@ -7009,71 +7086,7 @@
         <!-- END: 이미지 확대 보기(Zoom)를 위한 HTML 구조 -->
 
         <!-- START: 텍스트 서식 플로팅 툴바 HTML 구조 -->
-        <div id="textFormatToolbar" class="text-format-toolbar" style="display: none;">
-            <button id="floatBtnBold" class="toolbar-btn" data-command="bold" title="굵게" type="button" aria-label="굵게"><b>B</b></button>
-            <button id="floatBtnItalic" class="toolbar-btn" data-command="italic" title="기울임" type="button" aria-label="기울임"><i>I</i></button>
-            <button id="floatBtnUnderline" class="toolbar-btn" data-command="underline" title="밑줄" type="button" aria-label="밑줄"><u>U</u></button>
-            <button id="floatBtnStrike" class="toolbar-btn" data-command="strikeThrough" title="취소선" type="button" aria-label="취소선"><s>S</s></button>
-            <div class="toolbar-divider"></div>
-            <input type="number" id="floatFontSize" class="toolbar-size-input" min="10" max="100" value="16" title="글꼴 크기">
-            <div class="toolbar-divider"></div>
-            <div class="color-picker-wrapper" title="글자 색상">
-                <button type="button" class="color-picker-trigger" id="floatFontColorBtn" title="글자 색상 선택" aria-label="글자 색상 선택">
-                    <span class="color-picker-icon">🎨</span>
-                    <span class="color-indicator-bar" id="floatFontColorBar"></span>
-                </button>
-                <input type="color" id="floatFontColor" class="toolbar-color-picker visually-hidden-proxy" value="#000000" tabindex="-1">
-            </div>
-            <div class="color-picker-wrapper" title="배경 색상 (형광펜)">
-                <button type="button" class="color-picker-trigger" id="floatBackColorBtn" title="배경 색상 (형광펜) 선택" aria-label="배경 색상 선택">
-                    <span class="color-picker-icon">🖌️</span>
-                    <span class="color-indicator-bar bg-bar" id="floatBackColorBar"></span>
-                </button>
-                <input type="color" id="floatBackColor" class="toolbar-color-picker visually-hidden-proxy" value="#ffffff" tabindex="-1">
-            </div>
-            <div class="toolbar-divider"></div>
-            <button type="button" id="floatBtnLink" class="toolbar-btn" title="링크 삽입/수정 (Ctrl+K)" aria-label="링크 삽입/수정">
-                <span class="toolbar-btn-icon" style="font-size: 14px; line-height: 1;">🔗</span>
-            </button>
-            <button type="button" id="floatBtnUnlink" class="toolbar-btn" title="링크 삭제" aria-label="링크 삭제">
-                <span class="toolbar-btn-icon" style="position: relative; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;">🔗<span style="position: absolute; color: #ef4444; font-size: 12px; font-weight: 900; bottom: -2px; right: -3px; line-height: 1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);">✕</span></span>
-            </button>
-
-            <!-- START: 색상 옵션 선택 팝오버 창 -->
-            <div id="textColorPickerPopover" class="text-color-popover" style="display: none;">
-                <div class="color-popover-header">
-                    <span class="color-popover-title" id="colorPopoverTitle">🎨 글자 색상 선택</span>
-                    <button type="button" class="color-popover-close-btn" id="colorPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
-                </div>
-                <button type="button" class="color-popover-quick-btn" id="colorPopoverQuickBtn">↺ 기본 색상으로 복원</button>
-                <div class="color-popover-grid" id="colorPopoverGrid"></div>
-                <div class="color-popover-custom">
-                    <div class="color-popover-custom-left">
-                        <span>직접 선택</span>
-                        <input type="color" id="popoverCustomColorPicker" class="color-popover-native-input" value="#ff0000" title="색상 선택기">
-                    </div>
-                    <input type="text" id="popoverCustomColorHex" class="color-popover-hex-input" value="#FF0000" maxlength="7" title="16진수 색상 코드">
-                    <button type="button" class="color-popover-apply-btn" id="popoverCustomApplyBtn">적용</button>
-                </div>
-            </div>
-            <!-- END: 색상 옵션 선택 팝오버 창 -->
-
-            <!-- START: 링크 삽입/수정 팝오버 창 -->
-            <div id="textLinkPopover" class="text-link-popover" style="display: none;">
-                <div class="link-popover-header">
-                    <span class="link-popover-title" id="linkPopoverTitle">🔗 링크 삽입/수정</span>
-                    <button type="button" class="link-popover-close-btn" id="linkPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
-                </div>
-                <div class="link-popover-body">
-                    <input type="text" id="linkPopoverUrlInput" class="link-popover-input" placeholder="https:// 또는 URL 입력" spellcheck="false" autocomplete="off">
-                    <div class="link-popover-actions">
-                        <button type="button" id="linkPopoverApplyBtn" class="link-popover-apply-btn">적용</button>
-                        <button type="button" id="linkPopoverRemoveBtn" class="link-popover-remove-btn" title="선택 영역 링크 제거" aria-label="선택 영역 링크 제거">링크 삭제</button>
-                    </div>
-                </div>
-            </div>
-            <!-- END: 링크 삽입/수정 팝오버 창 -->
-        </div>
+        
         <!-- END: 텍스트 서식 플로팅 툴바 HTML 구조 -->
     </div>
 
@@ -7166,7 +7179,7 @@
         <span data-editable-type="flow-span" style="background-color: #cceeff;">새 흐름 단계</span>
     </div>
 
-    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1789037628495,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":9,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":103,"y":147,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
+    <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1789044195364,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"displayedYearInNav":2026,"displayedMonthInNav":9,"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":116,"y":133,"width":350,"height":500},"columnShutterState":{"lastWeekOpen":true,"thisWeekOpen":true}};</script>
     <script>
         // 스크립트 전역 변수 추가
         const COMPRESSION_THRESHOLD = 200 * 1024;
@@ -7194,27 +7207,52 @@
                 }
             };
 
+            const _memoryStorage = new Map();
+            const _safeStorage = {
+                getItem(key) {
+                    try { return localStorage.getItem(key); } catch (e) { return _memoryStorage.get(key) ?? null; }
+                },
+                setItem(key, value) {
+                    try { localStorage.setItem(key, String(value)); } catch (e) { _memoryStorage.set(key, String(value)); }
+                },
+                removeItem(key) {
+                    try { localStorage.removeItem(key); } catch (e) { _memoryStorage.delete(key); }
+                }
+            };
+
             const storage = {
                 getJson(key, fallback) {
                     try {
-                        const raw = localStorage.getItem(key);
+                        const raw = _safeStorage.getItem(key);
                         return raw === null ? fallback : JSON.parse(raw);
                     } catch (error) {
                         console.warn(`저장된 설정을 읽을 수 없어 초기화합니다: ${key}`, error);
-                        localStorage.removeItem(key);
+                        _safeStorage.removeItem(key);
                         return fallback;
                     }
                 },
                 setJson(key, value) {
-                    localStorage.setItem(key, JSON.stringify(value));
+                    try {
+                        _safeStorage.setItem(key, JSON.stringify(value));
+                    } catch (error) {
+                        console.warn(`설정 저장 실패: ${key}`, error);
+                    }
                 },
                 getBoolean(key, fallback) {
-                    const raw = localStorage.getItem(key);
-                    if (raw === null) return fallback;
-                    return raw === 'true';
+                    try {
+                        const raw = _safeStorage.getItem(key);
+                        if (raw === null) return fallback;
+                        return raw === 'true';
+                    } catch (error) {
+                        return fallback;
+                    }
                 },
                 setBoolean(key, value) {
-                    localStorage.setItem(key, String(Boolean(value)));
+                    try {
+                        _safeStorage.setItem(key, String(Boolean(value)));
+                    } catch (error) {
+                        console.warn(`불리언 설정 저장 실패: ${key}`, error);
+                    }
                 }
             };
 
@@ -7505,21 +7543,16 @@
                     elements.controls?.addEventListener('click', handleAction);
                     elements.emptyState?.addEventListener('click', handleAction);
 
-                    // 모바일 및 터치 환경을 위한 개별 버튼 직접 바인딩 (이벤트 유실 원천 차단)
-                    if (elements.lastButton) {
-                        elements.lastButton.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            dispatch('toggle-last');
-                        });
-                    }
-                    if (elements.thisButton) {
-                        elements.thisButton.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            dispatch('toggle-this');
-                        });
-                    }
+                    // 모바일 즉각 터치 반응 지원 (350ms 중복 차단 가드로 합성 클릭 중복 실행 방지)
+                    elements.lastButton?.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        dispatch('toggle-last');
+                    }, { passive: false });
+                    elements.thisButton?.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        dispatch('toggle-this');
+                    }, { passive: false });
+
                     isBound = true;
                 }
 
@@ -7528,8 +7561,17 @@
 
             let state = { ...DEFAULT_STATE };
             let mounted = false;
+            let lastActionTime = 0;
+            let lastActionType = '';
 
             function dispatch(action) {
+                const now = Date.now();
+                if (action === lastActionType && (now - lastActionTime) < 350) {
+                    return;
+                }
+                lastActionTime = now;
+                lastActionType = action;
+
                 const nextState = domain.normalize(domain.reduce(state, action));
                 if (nextState.lastWeekOpen === state.lastWeekOpen &&
                     nextState.thisWeekOpen === state.thisWeekOpen) return;
@@ -7538,18 +7580,85 @@
                 view.render(state, true);
                 requestAnimationFrame(() => {
                     if (typeof setupAnnotationCanvas === 'function') setupAnnotationCanvas();
-                    // 모바일 환경에서 컬럼 펼침 시 해당 컬럼으로 부드럽게 안내
-                    if (window.innerWidth <= 768) {
-                        if (action === 'toggle-this' && state.thisWeekOpen) {
-                            const thisCol = document.getElementById('thisWeekColumn');
-                            if (thisCol) thisCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        } else if (action === 'toggle-last' && state.lastWeekOpen) {
-                            const lastCol = document.getElementById('lastWeekColumn');
-                            if (lastCol) lastCol.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                    }
+                    // 컬럼 표시 상태 변경 후 헤더/패딩 레이아웃 재확정 (내부적으로 rAF 큐를 사용)
+                    if (typeof adjustContainerPadding === 'function') adjustContainerPadding();
+                    // 모바일 세로 모드 환경에서 전주/금주 버튼 클릭 시 상호 관계에 맞게 해당 제목 타이틀 화면 표출 및 정밀 안내
+                    // 3단계 중첩 rAF:
+                    //   [1단계] render+setup+adjustContainerPadding 호출 (adjustContainerPadding은 내부 rAF 큐 대기)
+                    //   [2단계] adjustContainerPadding의 내부 rAF가 실행되어 paddingTop 확정
+                    //   [3단계] 완전히 확정된 레이아웃 기준으로 스크롤 오프셋 계산 및 실행
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            if (window.innerWidth <= 768) {
+                                const navEl = document.getElementById('weeklyNavigatorContainer');
+                                const navBottom = navEl ? navEl.getBoundingClientRect().bottom : 107;
+
+                                if (action === 'toggle-last' || action === 'open-last') {
+                                    if (state.lastWeekOpen) {
+                                        // 전주 펼침: 전주는 최상단 컬럼.
+                                        // 사용자가 상단에 있을 때는 화면의 위치 이동 없이 그대로 전환 보장(불필요한 스크롤 방지).
+                                        // 화면이 아래로 많이 스크롤되어 있었을 때만 전주 제목 타이틀이 보이도록 상단(0)으로 부드럽게 이동.
+                                        if (window.scrollY > 30) {
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        } else if (window.scrollY > 0) {
+                                            window.scrollTo({ top: 0, behavior: 'instant' });
+                                        }
+                                    } else {
+                                        // 전주 접힘: 금주가 최상단으로 올라오므로 금주 타이틀이 네비게이터 바로 아래에 보이도록 유지
+                                        if (window.scrollY > 30) {
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }
+                                    }
+                                } else if (action === 'toggle-this' || action === 'open-this') {
+                                    if (state.thisWeekOpen) {
+                                        // 금주 펼침:
+                                        if (state.lastWeekOpen) {
+                                            // 전주도 열려있어 금주 컬럼이 전주 아래에 위치하는 경우:
+                                            // 고정 네비게이터 하단 바로 아래(8px 여백)에 금주 컬럼의 제목 타이틀(div.column-title)이
+                                            // 정확히 안착되어 시원하게 보이도록 오프셋 계산 후 부드럽게 이동
+                                            const thisCol = document.getElementById('thisWeekColumn');
+                                            const titleEl = thisCol ? (thisCol.querySelector('.column-title') || thisCol) : null;
+                                            if (titleEl) {
+                                                const titleRect = titleEl.getBoundingClientRect();
+                                                const targetY = Math.max(0, window.scrollY + titleRect.top - navBottom - 8);
+                                                window.scrollTo({ top: targetY, behavior: 'smooth' });
+                                            }
+                                        } else {
+                                            // 전주가 닫혀있어 금주가 최상단인 경우:
+                                            if (window.scrollY > 30) {
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            } else if (window.scrollY > 0) {
+                                                window.scrollTo({ top: 0, behavior: 'instant' });
+                                            }
+                                        }
+                                    } else {
+                                        // 금주 접힘:
+                                        if (state.lastWeekOpen) {
+                                            // 전주가 열려있다면 전주 제목 타이틀이 보이도록 상단으로 부드럽게 복귀
+                                            if (window.scrollY > 30) {
+                                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                            }
+                                        }
+                                    }
+                                } else if (action === 'open-both') {
+                                    if (window.scrollY > 30) {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }
+                                }
+                            }
+                        });
+                    });
                 });
             }
+
+            window.__toggleLastWeekShutter = function(e) {
+                if (e) { e.preventDefault?.(); e.stopPropagation?.(); }
+                dispatch('toggle-last');
+            };
+            window.__toggleThisWeekShutter = function(e) {
+                if (e) { e.preventDefault?.(); e.stopPropagation?.(); }
+                dispatch('toggle-this');
+            };
 
             function mount(savedState) {
                 if (mounted) return true;
@@ -7569,7 +7678,9 @@
             return Object.freeze({
                 mount,
                 getState: () => ({ ...state }),
-                openBoth: () => dispatch('open-both')
+                openBoth: () => dispatch('open-both'),
+                toggleLast: () => dispatch('toggle-last'),
+                toggleThis: () => dispatch('toggle-this')
             });
         })();
 
@@ -7851,7 +7962,7 @@
                 const timeString = `${ampm} ${hours.toString().padStart(2, '0')}:${minutes}`;
                 currentTimeEl.textContent = timeString;
 
-                const year = now.getFullYear().toString().slice(-2);
+                const year = now.getFullYear().toString();
                 const month = (now.getMonth() + 1).toString().padStart(2, '0');
                 const day = now.getDate().toString().padStart(2, '0');
                 const dateString = `${year}-${month}-${day}`;
@@ -7863,12 +7974,13 @@
             if (typeof flatpickr === 'function') {
                 flatpickr(currentDateEl, {
                     locale: "ko",
-                    dateFormat: "y-m-d",
+                    dateFormat: "Y-m-d",
                     allowInput: true,
                     defaultDate: "today"
                 });
             }
         }
+        try { initializeTimeAndDateFeature(new Date()); } catch (e) {}
 
         function startScreensaver() {
             if (isScreensaverPaused || isScreensaverActive) {
@@ -11585,7 +11697,7 @@ function hideTextFormatToolbar() {
             const deterministicWeeklyHeader = {
                 '#initial-time': '00:00',
                 '#current-time': 'AM 12:00',
-                '#current-date': 'YY-MM-DD'
+                '#current-date': 'YYYY-MM-DD'
             };
             Object.entries(deterministicWeeklyHeader).forEach(([selector, value]) => {
                 const node = clonedDoc.querySelector(selector);
@@ -15780,7 +15892,7 @@ function ensureImageWrapperStructure(wrapper) {
                     const btnRect = button.getBoundingClientRect();
                     const btnWidth = btnRect.width || button.offsetWidth || 96;
                     const btnHeight = btnRect.height || button.offsetHeight || 42;
-                    const isMobile = window.innerWidth <= 600 || window.matchMedia('(max-width: 600px) and (orientation: portrait)').matches;
+                    const isMobile = window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches;
 
                     let left, top;
                     if (isMobile) {
@@ -15834,7 +15946,6 @@ function ensureImageWrapperStructure(wrapper) {
                 };
                 button.classList.add('is-dragging');
                 button.setPointerCapture?.(e.pointerId);
-                e.preventDefault();
             });
 
             button.addEventListener('pointermove', e => {
@@ -15849,12 +15960,14 @@ function ensureImageWrapperStructure(wrapper) {
             const finishDrag = e => {
                 if (!dragState || dragState.pointerId !== e.pointerId) return;
                 const rect = button.getBoundingClientRect();
-                setFocusedEditorButtonPosition(button, rect.left, rect.top, true);
+                if (focusedEditorButtonWasDragged) {
+                    setFocusedEditorButtonPosition(button, rect.left, rect.top, true);
+                    e.preventDefault();
+                }
                 button.classList.remove('is-dragging');
                 button.releasePointerCapture?.(e.pointerId);
                 dragState = null;
-                setTimeout(() => { focusedEditorButtonWasDragged = false; }, 0);
-                e.preventDefault();
+                setTimeout(() => { focusedEditorButtonWasDragged = false; }, 80);
             };
 
             button.addEventListener('pointerup', finishDrag);
@@ -16096,19 +16209,33 @@ function ensureImageWrapperStructure(wrapper) {
             if (openBtn) {
                 initializeFocusedEditorButtonDrag(openBtn);
                 openBtn.addEventListener('mousedown', e => e.preventDefault());
-                openBtn.addEventListener('click', e => {
+                
+                let lastOpenActionTime = 0;
+                const handleOpenAction = (e) => {
                     if (focusedEditorButtonWasDragged) {
-                        e.preventDefault();
+                        e?.preventDefault?.();
                         return;
                     }
+                    const now = Date.now();
+                    if (now - lastOpenActionTime < 400) return;
+                    lastOpenActionTime = now;
+
                     if (openMultiSelectedImagesIfAvailable()) {
-                        e.preventDefault();
-                        e.stopPropagation();
+                        e?.preventDefault?.();
+                        e?.stopPropagation?.();
                         hideFocusedEditorButton();
                         return;
                     }
                     openFocusedEditor();
-                });
+                };
+
+                openBtn.addEventListener('click', handleOpenAction);
+                openBtn.addEventListener('touchend', (e) => {
+                    if (!focusedEditorButtonWasDragged) {
+                        e.preventDefault();
+                        handleOpenAction(e);
+                    }
+                }, { passive: false });
             }
             closeBtn?.addEventListener('click', saveAndCloseFocusedEditor);
             applyBtn?.addEventListener('click', saveAndCloseFocusedEditor);
@@ -16938,8 +17065,16 @@ function ensureImageWrapperStructure(wrapper) {
                 if (target && !overlay?.classList.contains('active')) showFocusedEditorButton(target);
             }, true);
 
-            // 모바일 터치 환경 즉각 감지
+            // 모바일 터치 환경 즉각 감지 (touchstart 및 touchend)
             document.addEventListener('touchstart', e => {
+                if (e.target.closest?.('#openFocusedEditorBtn, #focusedEditorOverlay, .annotation-settings-modal, .zoom-editor-toolbar')) return;
+                const target = getFocusedEditableTarget(e.target);
+                if (target && !overlay?.classList.contains('active')) {
+                    showFocusedEditorButton(target);
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', e => {
                 if (e.target.closest?.('#openFocusedEditorBtn, #focusedEditorOverlay, .annotation-settings-modal, .zoom-editor-toolbar')) return;
                 const target = getFocusedEditableTarget(e.target);
                 if (target && !overlay?.classList.contains('active')) {
@@ -16949,7 +17084,10 @@ function ensureImageWrapperStructure(wrapper) {
 
             document.addEventListener('mousedown', e => {
                 if (e.target.closest('#openFocusedEditorBtn, #focusedEditorOverlay, .annotation-settings-modal, .zoom-editor-toolbar')) return;
-                if (!getFocusedEditableTarget(e.target)) hideFocusedEditorButton();
+                const target = getFocusedEditableTarget(e.target);
+                if (!target && !getFocusedEditableTarget(document.activeElement)) {
+                    hideFocusedEditorButton();
+                }
             });
 
             // 스크롤 및 모바일 가상 키보드/뷰포트 변화 시 확대 편집 버튼 위치 실시간 추적
@@ -17406,7 +17544,8 @@ function ensureImageWrapperStructure(wrapper) {
                 resumeMultiImageWorkspaceFromEditor(multiWorkspaceSource);
             }
         }
-        window.addEventListener('DOMContentLoaded', () => {
+
+        function initializeMainApp() {
             cleanCurrentDocumentOfDuplicateToolbars();
             if (typeof reconstructAllImageWrappersIntegrity === 'function') reconstructAllImageWrappersIntegrity();
 
@@ -18251,7 +18390,13 @@ function ensureImageWrapperStructure(wrapper) {
             updatePageTitleSuffix();
 
             resetIdleTimer();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initializeMainApp);
+        } else {
+            initializeMainApp();
+        }
 
         window.addEventListener('resize', () => {
             adjustContainerPadding();
@@ -18766,4 +18911,73 @@ function ensureImageWrapperStructure(wrapper) {
             if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true });
             else mount();
         })();
-    </script></body></html>
+    </script>
+
+
+
+
+<div id="textFormatToolbar" class="text-format-toolbar" style="display: none; position: absolute; inset: 1762.3px auto auto 822.775px; z-index: 10005;">
+            <button id="floatBtnBold" class="toolbar-btn" data-command="bold" title="굵게" type="button" aria-label="굵게"><b>B</b></button>
+            <button id="floatBtnItalic" class="toolbar-btn" data-command="italic" title="기울임" type="button" aria-label="기울임"><i>I</i></button>
+            <button id="floatBtnUnderline" class="toolbar-btn" data-command="underline" title="밑줄" type="button" aria-label="밑줄"><u>U</u></button>
+            <button id="floatBtnStrike" class="toolbar-btn" data-command="strikeThrough" title="취소선" type="button" aria-label="취소선"><s>S</s></button>
+            <div class="toolbar-divider"></div>
+            <input type="number" id="floatFontSize" class="toolbar-size-input" min="10" max="100" value="16" title="글꼴 크기">
+            <div class="toolbar-divider"></div>
+            <div class="color-picker-wrapper" title="글자 색상">
+                <button type="button" class="color-picker-trigger" id="floatFontColorBtn" title="글자 색상 선택" aria-label="글자 색상 선택">
+                    <span class="color-picker-icon">🎨</span>
+                    <span class="color-indicator-bar" id="floatFontColorBar" style="background-color: rgb(43, 43, 43);"></span>
+                </button>
+                <input type="color" id="floatFontColor" class="toolbar-color-picker visually-hidden-proxy" value="#000000" tabindex="-1">
+            </div>
+            <div class="color-picker-wrapper" title="배경 색상 (형광펜)">
+                <button type="button" class="color-picker-trigger" id="floatBackColorBtn" title="배경 색상 (형광펜) 선택" aria-label="배경 색상 선택">
+                    <span class="color-picker-icon">🖌️</span>
+                    <span class="color-indicator-bar bg-bar" id="floatBackColorBar" style="background-color: rgb(255, 255, 255);"></span>
+                </button>
+                <input type="color" id="floatBackColor" class="toolbar-color-picker visually-hidden-proxy" value="#ffffff" tabindex="-1">
+            </div>
+            <div class="toolbar-divider"></div>
+            <button type="button" id="floatBtnLink" class="toolbar-btn" title="링크 삽입/수정 (Ctrl+K)" aria-label="링크 삽입/수정">
+                <span class="toolbar-btn-icon" style="font-size: 14px; line-height: 1;">🔗</span>
+            </button>
+            <button type="button" id="floatBtnUnlink" class="toolbar-btn" title="링크 삭제" aria-label="링크 삭제" style="opacity: 0.65;">
+                <span class="toolbar-btn-icon" style="position: relative; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;">🔗<span style="position: absolute; color: #ef4444; font-size: 12px; font-weight: 900; bottom: -2px; right: -3px; line-height: 1; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);">✕</span></span>
+            </button>
+
+            <!-- START: 색상 옵션 선택 팝오버 창 -->
+            <div id="textColorPickerPopover" class="text-color-popover" style="display: none;">
+                <div class="color-popover-header">
+                    <span class="color-popover-title" id="colorPopoverTitle">🎨 글자 색상 선택</span>
+                    <button type="button" class="color-popover-close-btn" id="colorPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
+                </div>
+                <button type="button" class="color-popover-quick-btn" id="colorPopoverQuickBtn">↺ 기본 색상으로 복원</button>
+                <div class="color-popover-grid" id="colorPopoverGrid"></div>
+                <div class="color-popover-custom">
+                    <div class="color-popover-custom-left">
+                        <span>직접 선택</span>
+                        <input type="color" id="popoverCustomColorPicker" class="color-popover-native-input" value="#ff0000" title="색상 선택기">
+                    </div>
+                    <input type="text" id="popoverCustomColorHex" class="color-popover-hex-input" value="#FF0000" maxlength="7" title="16진수 색상 코드">
+                    <button type="button" class="color-popover-apply-btn" id="popoverCustomApplyBtn">적용</button>
+                </div>
+            </div>
+            <!-- END: 색상 옵션 선택 팝오버 창 -->
+
+            <!-- START: 링크 삽입/수정 팝오버 창 -->
+            <div id="textLinkPopover" class="text-link-popover" style="display: none;">
+                <div class="link-popover-header">
+                    <span class="link-popover-title" id="linkPopoverTitle">🔗 링크 삽입/수정</span>
+                    <button type="button" class="link-popover-close-btn" id="linkPopoverCloseBtn" title="닫기" aria-label="닫기">✕</button>
+                </div>
+                <div class="link-popover-body">
+                    <input type="text" id="linkPopoverUrlInput" class="link-popover-input" placeholder="https:// 또는 URL 입력" spellcheck="false" autocomplete="off">
+                    <div class="link-popover-actions">
+                        <button type="button" id="linkPopoverApplyBtn" class="link-popover-apply-btn">적용</button>
+                        <button type="button" id="linkPopoverRemoveBtn" class="link-popover-remove-btn" title="선택 영역 링크 제거" aria-label="선택 영역 링크 제거">링크 삭제</button>
+                    </div>
+                </div>
+            </div>
+            <!-- END: 링크 삽입/수정 팝오버 창 -->
+        </div></body></html>
