@@ -2443,7 +2443,22 @@
                 text-decoration: underline !important;
             }
         }
-    </style>
+    
+        /* --- START: 이미지 압축 모달 CSS --- */
+        #imageCompressOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 32000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #imageCompressOverlay.active {
+            display: flex !important;
+        }
+        /* --- END: 이미지 압축 모달 CSS --- */
+</style>
     <script>
         // This is a placeholder for the saved state. The main script will overwrite this.
         // It's here to prevent "window.__SAVED_APP_STATE__ is not defined" errors if the file is loaded without a saved state.
@@ -2942,7 +2957,11 @@
                         <button id="saveHtmlBtn" style="margin-top:5px;">💾 HTML로 저장</button>
                         <button id="printPdfBtn" style="margin-top:5px;">📄 PDF로 인쇄</button>
                     </div>
-                    <div class="panel-section">
+                                        <div class="panel-section">
+                        <label>문서 최적화</label>
+                        <button id="compressImagesBtn" style="background: #fffbeb; border-color: #fde68a; color: #92400e;">🗜️ 전체 이미지 압축 (찌꺼기 제거)</button>
+                    </div>
+<div class="panel-section">
                         <label>화면 설정</label>
                         <div>
                             <input type="checkbox" id="toggleScreensaverPause">
@@ -7028,9 +7047,12 @@
             const imageWidthInput = document.getElementById('imageWidthInput');
             const insertImageBtn = document.getElementById('insertImageBtn');
             let imagesToInsert = [];
-            const COMPRESSION_THRESHOLD = 200 * 1024;
-            const MAX_DIMENSION = 1600;
-            const COMPRESSION_QUALITY = 0.7;
+            const COMPRESSION_THRESHOLD = 150 * 1024;
+        const MAX_DIMENSION = 1600;
+        const COMPRESSION_QUALITY = 0.8;
+        window.COMPRESSION_THRESHOLD = COMPRESSION_THRESHOLD;
+        window.MAX_DIMENSION = MAX_DIMENSION;
+        window.COMPRESSION_QUALITY = COMPRESSION_QUALITY;
 
             function compressImage(file) {
                 return new Promise((resolve, reject) => {
@@ -7822,7 +7844,205 @@
             if (document.exitFullscreen) { document.exitFullscreen(); }
             else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
         }
-    </script>
+    
+// --- START: 전체 이미지 압축 최적화 기능 구현 (무결성 보증 전수 스캔 및 다운스케일링 리팩토링) ---
+            const compressImagesBtn = document.getElementById('compressImagesBtn');
+            const imageCompressOverlay = document.getElementById('imageCompressOverlay');
+            const closeImageCompressBtn = document.getElementById('closeImageCompressBtn');
+            const imageCompressCancelBtn = document.getElementById('imageCompressCancelBtn');
+            const startCompressBtn = document.getElementById('startCompressBtn');
+            const compressProgressContainer = document.getElementById('compressProgressContainer');
+            const compressProgressBar = document.getElementById('compressProgressBar');
+            const compressStatusText = document.getElementById('compressStatusText');
+            const compressResultContainer = document.getElementById('compressResultContainer');
+
+            function openCompressModal() {
+                if (!imageCompressOverlay) return;
+                imageCompressOverlay.classList.add('active');
+                imageCompressOverlay.style.display = 'flex';
+                imageCompressOverlay.setAttribute('aria-hidden', 'false');
+                const menuPanelEl = document.getElementById('menuPanel');
+                if (menuPanelEl) menuPanelEl.classList.remove('open');
+                
+                // 초기화
+                if (compressProgressContainer) compressProgressContainer.style.display = 'none';
+                if (compressResultContainer) compressResultContainer.style.display = 'none';
+                if (compressProgressBar) compressProgressBar.style.width = '0%';
+                if (startCompressBtn) {
+                    startCompressBtn.disabled = false;
+                    startCompressBtn.textContent = '압축 시작';
+                }
+            }
+
+            function closeCompressModal() {
+                if (!imageCompressOverlay) return;
+                if (startCompressBtn && startCompressBtn.disabled && startCompressBtn.textContent !== '닫기') {
+                    return;
+                }
+                imageCompressOverlay.classList.remove('active');
+                imageCompressOverlay.style.display = 'none';
+                imageCompressOverlay.setAttribute('aria-hidden', 'true');
+            }
+
+            if (compressImagesBtn) compressImagesBtn.addEventListener('click', openCompressModal);
+            if (closeImageCompressBtn) closeImageCompressBtn.addEventListener('click', closeCompressModal);
+            if (imageCompressCancelBtn) imageCompressCancelBtn.addEventListener('click', closeCompressModal);
+
+            function getBase64ByteSize(base64Str) {
+                if (!base64Str || !base64Str.includes('base64,')) return 0;
+                const base64Data = base64Str.split('base64,')[1];
+                return Math.round((base64Data.length * 3) / 4);
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            if (startCompressBtn) {
+                startCompressBtn.addEventListener('click', async () => {
+                    if (startCompressBtn.textContent === '닫기') {
+                        closeCompressModal();
+                        return;
+                    }
+
+                    // 1. [무결성 보증 전수 스캔] 요일 열 및 전체 영역(안건, 액션아이템, 인라인 래퍼, 확대창) Base64 이미지 전수 수집
+                    const allCandidateImages = document.querySelectorAll(
+                        '#contentArea img, .column img, .insert-area img, .resizable-image-wrapper img, #focusedEditorSurface img, .memo-section img, .action-item img, [contenteditable] img'
+                    );
+                    const targetImages = Array.from(new Set(Array.from(allCandidateImages))).filter(img => img.src && img.src.startsWith('data:image/'));
+
+                    if (targetImages.length === 0) {
+                        if (compressResultContainer) {
+                            compressResultContainer.style.display = 'block';
+                            compressResultContainer.innerHTML = '<strong>압축할 수 있는 (Base64 형식의) 이미지가 문서 내에 없습니다.</strong>';
+                        }
+                        return;
+                    }
+
+                    // 2. 옵션 및 UI 준비
+                    const qualityInput = document.querySelector('input[name="compressQuality"]:checked');
+                    const quality = qualityInput ? parseFloat(qualityInput.value) : 0.8;
+                    const maxDimension = (typeof window.MAX_DIMENSION !== 'undefined' ? window.MAX_DIMENSION : 1600);
+                    
+                    startCompressBtn.disabled = true;
+                    startCompressBtn.textContent = '압축 진행 중...';
+                    if (compressProgressContainer) compressProgressContainer.style.display = 'block';
+                    if (compressResultContainer) compressResultContainer.style.display = 'none';
+                    
+                    let totalOriginalBytes = 0;
+                    let totalCompressedBytes = 0;
+                    let processedCount = 0;
+
+                    // 3. 비동기 순차 압축 처리
+                    for (let i = 0; i < targetImages.length; i++) {
+                        const img = targetImages[i];
+                        
+                        if (compressStatusText) compressStatusText.textContent = '압축 진행 중... (' + (i + 1) + ' / ' + targetImages.length + ')';
+                        if (compressProgressBar) compressProgressBar.style.width = (((i + 1) / targetImages.length) * 100) + '%';
+                        
+                        const originalBytes = getBase64ByteSize(img.src);
+                        totalOriginalBytes += originalBytes;
+
+                        try {
+                            const compressedSrc = await compressImageToWebP(img.src, quality, maxDimension);
+                            const compressedBytes = getBase64ByteSize(compressedSrc);
+                            
+                            if (compressedBytes < originalBytes) {
+                                img.src = compressedSrc;
+                                img.setAttribute('src', compressedSrc);
+                                img.removeAttribute('data-image-src');
+                                delete img.dataset.imageSrc;
+                                const parentWrapper = img.closest('.resizable-image-wrapper');
+                                if (parentWrapper) {
+                                    parentWrapper.removeAttribute('data-image-src');
+                                    delete parentWrapper.dataset.imageSrc;
+                                }
+                                totalCompressedBytes += compressedBytes;
+                            } else {
+                                totalCompressedBytes += originalBytes;
+                            }
+                        } catch (err) {
+                            console.error('이미지 압축 실패:', err);
+                            totalCompressedBytes += originalBytes;
+                        }
+                        processedCount++;
+                    }
+
+                    // 4. 결과 보고
+                    const savedBytes = totalOriginalBytes - totalCompressedBytes;
+                    const savedPercent = totalOriginalBytes > 0 ? ((savedBytes / totalOriginalBytes) * 100).toFixed(1) : 0;
+                    
+                    if (compressProgressContainer) compressProgressContainer.style.display = 'none';
+                    if (compressResultContainer) {
+                        compressResultContainer.style.display = 'block';
+                        if (savedBytes > 0) {
+                            compressResultContainer.innerHTML = '<strong>✅ 최적화 완료!</strong><br><br>' +
+                                '처리된 이미지: <strong>' + processedCount + '장</strong><br>' +
+                                '압축 전 총 용량: <strong>' + formatBytes(totalOriginalBytes) + '</strong><br>' +
+                                '압축 후 총 용량: <strong style="color:#0284c7;">' + formatBytes(totalCompressedBytes) + '</strong><br>' +
+                                '<hr style="border:0; border-top:1px dashed #bbf7d0; margin: 10px 0;">' +
+                                '🎉 총 <strong>' + formatBytes(savedBytes) + ' (' + savedPercent + '%)</strong>의 불필요한 데이터를 절약했습니다!<br>' +
+                                '<span style="font-size:12px; color:#15803d; font-weight:600;">(최적화 상태가 문서에 즉시 적용되었습니다. 우측 상단 [저장] 버튼을 누르면 영구 보존됩니다.)</span>';
+                            if (typeof showMessage === 'function') {
+                                showMessage('이미지 최적화 완료: 총 ' + formatBytes(savedBytes) + ' 절감! 상단 [저장]을 눌러 영구 보존하세요.', 'success', 5000);
+                            }
+                        } else {
+                            compressResultContainer.innerHTML = '<strong>✅ 최적화 검사 완료</strong><br>' +
+                                '처리된 이미지: ' + processedCount + '장<br>' +
+                                '모든 이미지가 이미 최적화되어 있어 추가로 용량을 줄이지 않았습니다.';
+                        }
+                    }
+
+                    startCompressBtn.textContent = '닫기';
+                    startCompressBtn.disabled = false;
+                });
+            }
+
+            // 프로미스를 반환하는 비동기 이미지 캔버스 변환 함수 (무결성 다운스케일링 및 찌꺼기 제거)
+            function compressImageToWebP(dataUrl, quality = 0.8, maxDim = 1600) {
+                return new Promise((resolve) => {
+                    const imgObj = new Image();
+                    imgObj.onload = () => {
+                        let width = imgObj.naturalWidth || imgObj.width;
+                        let height = imgObj.naturalHeight || imgObj.height;
+
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(imgObj, 0, 0, width, height);
+
+                        try {
+                            const newDataUrl = canvas.toDataURL('image/webp', quality);
+                            if (newDataUrl && newDataUrl.startsWith('data:image/webp')) {
+                                resolve(newDataUrl);
+                            } else {
+                                resolve(canvas.toDataURL('image/jpeg', quality));
+                            }
+                        } catch (e) {
+                            resolve(dataUrl);
+                        }
+                    };
+                    imgObj.onerror = () => resolve(dataUrl);
+                    imgObj.src = dataUrl;
+                });
+            }
+            // --- END: 전체 이미지 압축 최적화 기능 구현 ---
+</script>
 
 
 
@@ -7850,4 +8070,43 @@
       <span class="flatpickr-weekday">
         일</span><span class="flatpickr-weekday">월</span><span class="flatpickr-weekday">화</span><span class="flatpickr-weekday">수</span><span class="flatpickr-weekday">목</span><span class="flatpickr-weekday">금</span><span class="flatpickr-weekday">토
       </span>
-      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay" aria-label="12월 28, 2025" tabindex="-1">28</span><span class="flatpickr-day prevMonthDay" aria-label="12월 29, 2025" tabindex="-1">29</span><span class="flatpickr-day prevMonthDay" aria-label="12월 30, 2025" tabindex="-1">30</span><span class="flatpickr-day prevMonthDay" aria-label="12월 31, 2025" tabindex="-1">31</span><span class="flatpickr-day" aria-label="1월 1, 2026" tabindex="-1">1</span><span class="flatpickr-day" aria-label="1월 2, 2026" tabindex="-1">2</span><span class="flatpickr-day" aria-label="1월 3, 2026" tabindex="-1">3</span><span class="flatpickr-day" aria-label="1월 4, 2026" tabindex="-1">4</span><span class="flatpickr-day" aria-label="1월 5, 2026" tabindex="-1">5</span><span class="flatpickr-day" aria-label="1월 6, 2026" tabindex="-1">6</span><span class="flatpickr-day" aria-label="1월 7, 2026" tabindex="-1">7</span><span class="flatpickr-day" aria-label="1월 8, 2026" tabindex="-1">8</span><span class="flatpickr-day" aria-label="1월 9, 2026" tabindex="-1">9</span><span class="flatpickr-day" aria-label="1월 10, 2026" tabindex="-1">10</span><span class="flatpickr-day" aria-label="1월 11, 2026" tabindex="-1">11</span><span class="flatpickr-day" aria-label="1월 12, 2026" tabindex="-1">12</span><span class="flatpickr-day" aria-label="1월 13, 2026" tabindex="-1">13</span><span class="flatpickr-day" aria-label="1월 14, 2026" tabindex="-1">14</span><span class="flatpickr-day" aria-label="1월 15, 2026" tabindex="-1">15</span><span class="flatpickr-day" aria-label="1월 16, 2026" tabindex="-1">16</span><span class="flatpickr-day" aria-label="1월 17, 2026" tabindex="-1">17</span><span class="flatpickr-day" aria-label="1월 18, 2026" tabindex="-1">18</span><span class="flatpickr-day" aria-label="1월 19, 2026" tabindex="-1">19</span><span class="flatpickr-day" aria-label="1월 20, 2026" tabindex="-1">20</span><span class="flatpickr-day" aria-label="1월 21, 2026" tabindex="-1">21</span><span class="flatpickr-day" aria-label="1월 22, 2026" tabindex="-1">22</span><span class="flatpickr-day" aria-label="1월 23, 2026" tabindex="-1">23</span><span class="flatpickr-day" aria-label="1월 24, 2026" tabindex="-1">24</span><span class="flatpickr-day" aria-label="1월 25, 2026" tabindex="-1">25</span><span class="flatpickr-day today selected" aria-label="1월 26, 2026" aria-current="date" tabindex="-1">26</span><span class="flatpickr-day" aria-label="1월 27, 2026" tabindex="-1">27</span><span class="flatpickr-day" aria-label="1월 28, 2026" tabindex="-1">28</span><span class="flatpickr-day" aria-label="1월 29, 2026" tabindex="-1">29</span><span class="flatpickr-day" aria-label="1월 30, 2026" tabindex="-1">30</span><span class="flatpickr-day" aria-label="1월 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="2월 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="2월 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="2월 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="2월 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="2월 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="2월 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="2월 7, 2026" tabindex="-1">7</span></div></div></div></div></div></body></html>
+      </div></div><div class="flatpickr-days" tabindex="-1"><div class="dayContainer"><span class="flatpickr-day prevMonthDay" aria-label="12월 28, 2025" tabindex="-1">28</span><span class="flatpickr-day prevMonthDay" aria-label="12월 29, 2025" tabindex="-1">29</span><span class="flatpickr-day prevMonthDay" aria-label="12월 30, 2025" tabindex="-1">30</span><span class="flatpickr-day prevMonthDay" aria-label="12월 31, 2025" tabindex="-1">31</span><span class="flatpickr-day" aria-label="1월 1, 2026" tabindex="-1">1</span><span class="flatpickr-day" aria-label="1월 2, 2026" tabindex="-1">2</span><span class="flatpickr-day" aria-label="1월 3, 2026" tabindex="-1">3</span><span class="flatpickr-day" aria-label="1월 4, 2026" tabindex="-1">4</span><span class="flatpickr-day" aria-label="1월 5, 2026" tabindex="-1">5</span><span class="flatpickr-day" aria-label="1월 6, 2026" tabindex="-1">6</span><span class="flatpickr-day" aria-label="1월 7, 2026" tabindex="-1">7</span><span class="flatpickr-day" aria-label="1월 8, 2026" tabindex="-1">8</span><span class="flatpickr-day" aria-label="1월 9, 2026" tabindex="-1">9</span><span class="flatpickr-day" aria-label="1월 10, 2026" tabindex="-1">10</span><span class="flatpickr-day" aria-label="1월 11, 2026" tabindex="-1">11</span><span class="flatpickr-day" aria-label="1월 12, 2026" tabindex="-1">12</span><span class="flatpickr-day" aria-label="1월 13, 2026" tabindex="-1">13</span><span class="flatpickr-day" aria-label="1월 14, 2026" tabindex="-1">14</span><span class="flatpickr-day" aria-label="1월 15, 2026" tabindex="-1">15</span><span class="flatpickr-day" aria-label="1월 16, 2026" tabindex="-1">16</span><span class="flatpickr-day" aria-label="1월 17, 2026" tabindex="-1">17</span><span class="flatpickr-day" aria-label="1월 18, 2026" tabindex="-1">18</span><span class="flatpickr-day" aria-label="1월 19, 2026" tabindex="-1">19</span><span class="flatpickr-day" aria-label="1월 20, 2026" tabindex="-1">20</span><span class="flatpickr-day" aria-label="1월 21, 2026" tabindex="-1">21</span><span class="flatpickr-day" aria-label="1월 22, 2026" tabindex="-1">22</span><span class="flatpickr-day" aria-label="1월 23, 2026" tabindex="-1">23</span><span class="flatpickr-day" aria-label="1월 24, 2026" tabindex="-1">24</span><span class="flatpickr-day" aria-label="1월 25, 2026" tabindex="-1">25</span><span class="flatpickr-day today selected" aria-label="1월 26, 2026" aria-current="date" tabindex="-1">26</span><span class="flatpickr-day" aria-label="1월 27, 2026" tabindex="-1">27</span><span class="flatpickr-day" aria-label="1월 28, 2026" tabindex="-1">28</span><span class="flatpickr-day" aria-label="1월 29, 2026" tabindex="-1">29</span><span class="flatpickr-day" aria-label="1월 30, 2026" tabindex="-1">30</span><span class="flatpickr-day" aria-label="1월 31, 2026" tabindex="-1">31</span><span class="flatpickr-day nextMonthDay" aria-label="2월 1, 2026" tabindex="-1">1</span><span class="flatpickr-day nextMonthDay" aria-label="2월 2, 2026" tabindex="-1">2</span><span class="flatpickr-day nextMonthDay" aria-label="2월 3, 2026" tabindex="-1">3</span><span class="flatpickr-day nextMonthDay" aria-label="2월 4, 2026" tabindex="-1">4</span><span class="flatpickr-day nextMonthDay" aria-label="2월 5, 2026" tabindex="-1">5</span><span class="flatpickr-day nextMonthDay" aria-label="2월 6, 2026" tabindex="-1">6</span><span class="flatpickr-day nextMonthDay" aria-label="2월 7, 2026" tabindex="-1">7</span></div></div></div></div></div>
+    <!-- 전체 이미지 압축 (찌꺼기 제거) 모달 오버레이 -->
+    <div id="imageCompressOverlay" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:32000; align-items:center; justify-content:center;">
+        <div id="imageCompressDialog" class="modal-content" style="background:#fff; border-radius:12px; width:480px; max-width:90vw; padding:24px; box-shadow:0 20px 40px rgba(0,0,0,0.3); border:1px solid #e2e8f0; font-family:inherit;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="margin:0; font-size:18px; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                    <span>🗜️</span> 전체 이미지 압축 (찌꺼기 제거)
+                </h3>
+                <button type="button" id="closeImageCompressBtn" style="background:none; border:none; font-size:20px; cursor:pointer; color:#64748b;">&times;</button>
+            </div>
+            <div class="modal-body" style="color:#475569; font-size:14px; line-height:1.6;">
+                <p style="margin-top:0;">문서에 포함된 모든 이미지의 불필요한 메타데이터와 찌꺼기를 제거하고 고화질 WebP 포맷으로 압축하여 문서 용량을 최적화합니다.</p>
+                
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin:14px 0;">
+                    <div style="font-weight:600; margin-bottom:8px; color:#334155;">압축 품질 옵션:</div>
+                    <label style="display:flex; align-items:center; gap:8px; margin-bottom:6px; cursor:pointer;">
+                        <input type="radio" name="compressQuality" value="0.8" checked>
+                        <span>표준 최적화 (품질 80% - 권장, 화질 유지 및 대폭 감축)</span>
+                    </label>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                        <input type="radio" name="compressQuality" value="0.6">
+                        <span>초슬림 최적화 (품질 60% - 최대 용량 감축)</span>
+                    </label>
+                </div>
+
+                <div id="compressProgressContainer" style="display:none; margin:16px 0;">
+                    <div id="compressStatusText" style="font-size:13px; color:#0284c7; margin-bottom:6px; font-weight:600;">압축 진행 준비 중...</div>
+                    <div style="width:100%; height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden;">
+                        <div id="compressProgressBar" style="width:0%; height:100%; background:#0284c7; transition:width 0.2s ease;"></div>
+                    </div>
+                </div>
+
+                <div id="compressResultContainer" style="display:none; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; padding:12px; border-radius:8px; margin-top:14px; font-size:13px;"></div>
+            </div>
+            <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
+                <button type="button" id="imageCompressCancelBtn" style="padding:8px 16px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; color:#475569;">취소</button>
+                <button type="button" id="startCompressBtn" style="padding:8px 18px; border:none; background:#0284c7; color:#fff; border-radius:6px; cursor:pointer; font-weight:600;">압축 시작</button>
+            </div>
+        </div>
+    </div></body></html>
