@@ -1570,7 +1570,79 @@ body.shift-pressed .resizable-image-wrapper img {
   z-index: 20001;
 }
 /* --- END: 이미지 드래그 복사 피드백 CSS --- */
-  </style>
+  
+        /* --- 이미지 전체 압축 모달 스타일 --- */
+        #imageCompressOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 32000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #imageCompressOverlay.active {
+            display: flex;
+        }
+        #imageCompressDialog {
+            background: #fff;
+            width: 90vw;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #imageCompressHeader {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #imageCompressTitle {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        #closeImageCompressBtn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0;
+        }
+        #closeImageCompressBtn:hover {
+            color: #ef4444;
+        }
+        #imageCompressBody {
+            padding: 20px;
+            background: #fff;
+        }
+        #imageCompressFooter {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        #imageCompressFooter button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+        }
+        #imageCompressFooter button:hover {
+            background: #f1f5f9;
+        }
+
+    </style>
 <script>
   // This is a placeholder for the saved state. The main script will overwrite this.
   // It's here to prevent "window.__SAVED_APP_STATE__ is not defined" errors if the file is loaded without a saved state.
@@ -2083,7 +2155,12 @@ body.shift-pressed .resizable-image-wrapper img {
                   <button id="saveHtmlBtn" style="margin-top:5px;">💾 HTML로 저장</button>
                   <button id="printPdfBtn" style="margin-top:5px;">📄 PDF로 인쇄</button>
                 </div>
-                <div class="panel-section">
+                
+                    <div class="panel-section">
+                        <label>문서 최적화</label>
+                        <button id="compressImagesBtn">🗜️ 전체 이미지 압축 (찌꺼기 제거)</button>
+                    </div>
+<div class="panel-section">
                   <label>화면 설정</label>
                   <div>
                     <input type="checkbox" id="toggleScreensaverPause">
@@ -2211,10 +2288,64 @@ body.shift-pressed .resizable-image-wrapper img {
   <span data-editable-type="flow-span" style="background-color: #cceeff;">새 흐름 단계</span>
 </div>
 
-<script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1754947962540,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":15.981522560119629,"y":149.9720916748047,"width":350,"height":500}};</script>
+
+        <!-- 이미지 전체 압축 모달 -->
+        <div id="imageCompressOverlay" aria-hidden="true">
+            <div id="imageCompressDialog" role="dialog" aria-modal="true" aria-labelledby="imageCompressTitle">
+                <div id="imageCompressHeader">
+                    <span id="imageCompressTitle">전체 이미지 압축 및 최적화</span>
+                    <button type="button" id="closeImageCompressBtn" aria-label="닫기">&times;</button>
+                </div>
+                <div id="imageCompressBody">
+                    <p style="margin-bottom: 15px; color: #475569; font-size: 0.9em; line-height: 1.5;">
+                        문서 내 모든 이미지의 불필요한 메타데이터(찌꺼기)를 제거하고 용량을 최적화합니다.<br>
+                        압축 시 <strong style="color:#0ea5e9;">WebP</strong> 포맷으로 자동 변환되어 화질 저하를 최소화합니다.
+                    </p>
+                    <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #1e293b;">압축 품질 선택</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="compressQuality" value="0.9">
+                            고화질 보존 (품질 90% - 용량 소폭 감소)
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="compressQuality" value="0.7" checked>
+                            표준 최적화 (품질 70% - 권장, 균형 잡힌 압축)
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="radio" name="compressQuality" value="0.5">
+                            최대 압축 (품질 50% - 로딩 속도 최우선)
+                        </label>
+                    </div>
+                    
+                    <div id="compressProgressContainer" style="display: none; text-align: center; margin-top: 15px;">
+                        <div style="font-size: 0.9em; font-weight: bold; color: #1e293b; margin-bottom: 5px;" id="compressStatusText">준비 중...</div>
+                        <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                            <div id="compressProgressBar" style="height: 100%; width: 0%; background: #3b82f6; transition: width 0.2s;"></div>
+                        </div>
+                    </div>
+                    <div id="compressResultContainer" style="display: none; margin-top: 15px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; color: #166534; font-size: 0.9em; line-height: 1.5;">
+                        <!-- 결과 출력 -->
+                    </div>
+                </div>
+                <div id="imageCompressFooter">
+                    <button type="button" id="startCompressBtn" style="background: #3b82f6; border-color: #2563eb; color: #fff;">압축 시작</button>
+                    <button type="button" id="imageCompressCancelBtn">닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <script id="mainAppScript">window.__SAVED_APP_STATE__ = {"isTemplate":false,"initialTimestamp":1754947962540,"weeklyNavigatorConfig":{"enabled":true,"baseURL":"https://jonggunelee.github.io/wyggkr03/","filenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.html","pastFilenameStructureTemplate":"{YYYY}/{YYYY}_{MM}_{WW}_회의록.pdf","isNavCollapsed":false},"drawnStrokes":[],"drawingSettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"keepDrawingsVisibleOnDeactivate":true,"isDrawingFeatureActive":false,"isAnnotationPanelOpen":false,"isMemoModeActive":false,"panelUISettings":{"tool":"orthoLine","penColor":"#FF0000","penLineWidth":"5","highlighterColor":"#FFFFE0","highlighterLineWidth":"20","highlighterOpacity":"0.3"},"editIconsMode":"off","isScreensaverPaused":true,"areMenusCollapsed":true,"weeksForComparison":[],"isCompareModeActive":false,"panelState":{"x":15.981522560119629,"y":149.9720916748047,"width":350,"height":500}};</script>
 <script>
 // 스크립트 전역 변수 추가
-const CARRYOVER_STORAGE_KEY = 'weeklyMeetingCarryoverItems';
+
+        // 스크립트 전역 변수 추가 (모든 스코프 무결성 보증)
+        const COMPRESSION_THRESHOLD = 150 * 1024;
+        const MAX_DIMENSION = 1600;
+        const COMPRESSION_QUALITY = 0.8;
+        window.COMPRESSION_THRESHOLD = COMPRESSION_THRESHOLD;
+        window.MAX_DIMENSION = MAX_DIMENSION;
+        window.COMPRESSION_QUALITY = COMPRESSION_QUALITY;
+        const CARRYOVER_STORAGE_KEY = 'weeklyMeetingCarryoverItems';
 const FEATURE_SUMMARY_ENABLED_KEY = 'featureSummaryEnabled';
 const SCREENSAVER_PAUSED_KEY = 'screensaverPaused';
 
@@ -4648,7 +4779,200 @@ function toggleEmojiPalette(event) {
   emojiPalette.classList.toggle('show');
 }
 
-function saveHTML() {
+            // --- START: 전체 이미지 압축 최적화 기능 구현 (무결성 보증 전수 스캔 및 다운스케일링 리팩토링) ---
+            const compressImagesBtn = document.getElementById('compressImagesBtn');
+            const imageCompressOverlay = document.getElementById('imageCompressOverlay');
+            const closeImageCompressBtn = document.getElementById('closeImageCompressBtn');
+            const imageCompressCancelBtn = document.getElementById('imageCompressCancelBtn');
+            const startCompressBtn = document.getElementById('startCompressBtn');
+            const compressProgressContainer = document.getElementById('compressProgressContainer');
+            const compressProgressBar = document.getElementById('compressProgressBar');
+            const compressStatusText = document.getElementById('compressStatusText');
+            const compressResultContainer = document.getElementById('compressResultContainer');
+
+            function openCompressModal() {
+                if (!imageCompressOverlay) return;
+                imageCompressOverlay.classList.add('active');
+                imageCompressOverlay.setAttribute('aria-hidden', 'false');
+                if (typeof menuPanel !== 'undefined' && menuPanel) {
+                    if (menuPanel.classList) menuPanel.classList.remove('open');
+                    if (menuPanel.style) menuPanel.style.display = 'none';
+                }
+                
+                if (compressProgressContainer) compressProgressContainer.style.display = 'none';
+                if (compressResultContainer) compressResultContainer.style.display = 'none';
+                if (compressProgressBar) compressProgressBar.style.width = '0%';
+                if (startCompressBtn) {
+                    startCompressBtn.disabled = false;
+                    startCompressBtn.textContent = '압축 시작';
+                }
+            }
+
+            function closeCompressModal() {
+                if (!imageCompressOverlay) return;
+                if (startCompressBtn && startCompressBtn.disabled && startCompressBtn.textContent !== '닫기') {
+                    return;
+                }
+                imageCompressOverlay.classList.remove('active');
+                imageCompressOverlay.setAttribute('aria-hidden', 'true');
+            }
+
+            if (compressImagesBtn) compressImagesBtn.addEventListener('click', openCompressModal);
+            if (closeImageCompressBtn) closeImageCompressBtn.addEventListener('click', closeCompressModal);
+            if (imageCompressCancelBtn) imageCompressCancelBtn.addEventListener('click', closeCompressModal);
+
+            function getBase64ByteSize(base64Str) {
+                if (!base64Str || !base64Str.includes('base64,')) return 0;
+                const base64Data = base64Str.split('base64,')[1];
+                return Math.round((base64Data.length * 3) / 4);
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            if (startCompressBtn) {
+                startCompressBtn.addEventListener('click', async () => {
+                    if (startCompressBtn.textContent === '닫기') {
+                        closeCompressModal();
+                        return;
+                    }
+
+                    // 1. [무결성 보증 전수 스캔] 요일 열 및 전체 영역 Base64 이미지 전수 수집
+                    const allCandidateImages = document.querySelectorAll('#contentArea img, .column img, .insert-area img, .resizable-image-wrapper img, #focusedEditorSurface img, .memo-section img, .action-item img, [contenteditable] img');
+                    const targetImages = Array.from(new Set(Array.from(allCandidateImages))).filter(img => img.src && img.src.startsWith('data:image/'));
+
+                    if (targetImages.length === 0) {
+                        compressResultContainer.style.display = 'block';
+                        compressResultContainer.innerHTML = '<strong>압축할 수 있는 (Base64 형식의) 이미지가 문서 내에 없습니다.</strong>';
+                        return;
+                    }
+
+                    // 2. 옵션 및 UI 준비
+                    const qualityInput = document.querySelector('input[name="compressQuality"]:checked');
+                    const quality = qualityInput ? parseFloat(qualityInput.value) : 0.8;
+                    const maxDimension = (typeof window.MAX_DIMENSION !== 'undefined' ? window.MAX_DIMENSION : 1600);
+                    
+                    startCompressBtn.disabled = true;
+                    startCompressBtn.textContent = '압축 진행 중...';
+                    compressProgressContainer.style.display = 'block';
+                    compressResultContainer.style.display = 'none';
+                    
+                    let totalOriginalBytes = 0;
+                    let totalCompressedBytes = 0;
+                    let processedCount = 0;
+
+                    // 3. 비동기 순차 압축 처리
+                    for (let i = 0; i < targetImages.length; i++) {
+                        const img = targetImages[i];
+                        
+                        compressStatusText.textContent = '압축 진행 중... (' + (i + 1) + ' / ' + targetImages.length + ')';
+                        compressProgressBar.style.width = (((i + 1) / targetImages.length) * 100) + '%';
+                        
+                        const originalBytes = getBase64ByteSize(img.src);
+                        totalOriginalBytes += originalBytes;
+
+                        try {
+                            // 이미지를 캔버스에 그려 해상도 상한(1600px) 다운스케일링, 찌꺼기 제거 및 WebP 리샘플링
+                            const compressedSrc = await compressImageToWebP(img.src, quality, maxDimension);
+                            const compressedBytes = getBase64ByteSize(compressedSrc);
+                            
+                            if (compressedBytes < originalBytes) {
+                                img.src = compressedSrc;
+                                img.setAttribute('src', compressedSrc);
+                                const parentWrapper = img.closest('.resizable-image-wrapper');
+                                if (parentWrapper && parentWrapper.dataset.imageSrc) {
+                                    parentWrapper.dataset.imageSrc = compressedSrc;
+                                }
+                                totalCompressedBytes += compressedBytes;
+                            } else {
+                                totalCompressedBytes += originalBytes;
+                            }
+                        } catch (err) {
+                            console.error('이미지 압축 실패:', err);
+                            totalCompressedBytes += originalBytes;
+                        }
+                        processedCount++;
+                    }
+
+                    // 4. 결과 보고
+                    const savedBytes = totalOriginalBytes - totalCompressedBytes;
+                    const savedPercent = totalOriginalBytes > 0 ? ((savedBytes / totalOriginalBytes) * 100).toFixed(1) : 0;
+                    
+                    compressProgressContainer.style.display = 'none';
+                    compressResultContainer.style.display = 'block';
+                    
+                    if (savedBytes > 0) {
+                        compressResultContainer.innerHTML = '<strong>✅ 최적화 완료!</strong><br><br>' +
+                            '처리된 이미지: <strong>' + processedCount + '장</strong><br>' +
+                            '압축 전 총 용량: <strong>' + formatBytes(totalOriginalBytes) + '</strong><br>' +
+                            '압축 후 총 용량: <strong style="color:#0284c7;">' + formatBytes(totalCompressedBytes) + '</strong><br>' +
+                            '<hr style="border:0; border-top:1px dashed #bbf7d0; margin: 10px 0;">' +
+                            '🎉 총 <strong>' + formatBytes(savedBytes) + ' (' + savedPercent + '%)</strong>의 불필요한 데이터를 절약했습니다!<br>' +
+                            '<span style="font-size:12px; color:#15803d; font-weight:600;">(최적화 상태가 문서에 즉시 적용되었습니다. 우측 상단 [저장] 버튼을 누르면 영구 보존됩니다.)</span>';
+                        if (typeof showMessage === 'function') {
+                            showMessage('이미지 최적화 완료: 총 ' + formatBytes(savedBytes) + ' 절감! 상단 [저장]을 눌러 영구 보존하세요.', 'success', 5000);
+                        }
+                    } else {
+                        compressResultContainer.innerHTML = '<strong>✅ 최적화 검사 완료</strong><br>' +
+                            '처리된 이미지: ' + processedCount + '장<br>' +
+                            '모든 이미지가 이미 최적화되어 있어 추가로 용량을 줄이지 않았습니다.';
+                    }
+
+                    startCompressBtn.textContent = '닫기';
+                    startCompressBtn.disabled = false;
+                });
+            }
+
+            // 프로미스를 반환하는 비동기 이미지 캔버스 변환 함수 (무결성 다운스케일링 및 찌꺼기 제거)
+            function compressImageToWebP(dataUrl, quality = 0.8, maxDim = 1600) {
+                return new Promise((resolve, reject) => {
+                    const imgObj = new Image();
+                    imgObj.onload = () => {
+                        let width = imgObj.naturalWidth || imgObj.width;
+                        let height = imgObj.naturalHeight || imgObj.height;
+
+                        // [무결성 보증 다운스케일링] 4K/초고해상도 이미지의 가로세로 비율 완벽 유지하며 maxDim(1600px) 상한 조정
+                        if (width > maxDim || height > maxDim) {
+                            if (width > height) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            } else {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.drawImage(imgObj, 0, 0, width, height);
+                        
+                        try {
+                            const newDataUrl = canvas.toDataURL('image/webp', quality);
+                            if (newDataUrl && newDataUrl.startsWith('data:image/webp')) {
+                                resolve(newDataUrl);
+                            } else {
+                                resolve(canvas.toDataURL('image/jpeg', quality));
+                            }
+                        } catch (e) {
+                            resolve(dataUrl);
+                        }
+                    };
+                    imgObj.onerror = () => resolve(dataUrl);
+                    imgObj.src = dataUrl;
+                });
+            }
+            // --- END: 전체 이미지 압축 최적화 기능 구현 (무결성 보증 전수 스캔 및 다운스케일링 리팩토링) ---
+
+
+            function saveHTML() {
     if (menuPanel.style.display === "flex") handleCloseMenuPanel();
     if (currentlyActiveItemControlsElement) activateControls(null);
     if (isSelectionModeActive) cancelSelectionMode();
@@ -4677,6 +5001,8 @@ function saveHTML() {
     };
 
     const clonedDoc = document.cloneNode(true);
+            clonedDoc.querySelectorAll('#imageCompressOverlay').forEach(el => { el.classList.remove('active'); el.setAttribute('aria-hidden', 'true'); });
+            clonedDoc.querySelectorAll('[data-image-src]').forEach(el => { el.removeAttribute('data-image-src'); delete el.dataset.imageSrc; });
 
     // 저장 시 정리할 클래스들: 일시적인 상태 표시 클래스만 제거
         clonedDoc.querySelectorAll('.controls-active, .multi-zoom-selected, .selectable-item, .is-selected, .deletable-item, .is-selected-for-delete, .compare-selected, .resizable-image-wrapper.active, .is-dragging').forEach(el => {
